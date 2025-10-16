@@ -1,0 +1,314 @@
+{
+  "home": "Home",
+  "catalog": "Catalog",
+  "about": "About the Artist",
+  "contact": "Contact",
+  "dashboard": "Dashboard",
+  "myOrders": "My orders",
+  "cart": "Cart",
+  "adminChats": "Admin chats",
+  "adminOrders": "Admin orders",
+  "adminWorks": "Admin works",
+  "language": "Language",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "catalogPage": {
+    "tagline": "Avant-garde selection",
+    "title": "Curated Works",
+    "description": "Immerse yourself in a spectrum of experimental art pieces. Refine the collection with intuitive filters to discover the work that resonates with your interior and sensibility.",
+    "loadError": "We couldn't load the live catalogue. Displaying studio preview data.",
+    "noResults": "No works match the selected filters",
+    "filters": {
+      "heading": "Refine selection",
+      "category": "Category",
+      "year": "Year",
+      "price": "Price range",
+      "size": "Size",
+      "all": "All"
+    },
+    "card": {
+      "imageAlt": "Artwork {{title}}",
+      "year": "Year",
+      "dimensions": "Dimensions",
+      "category": "Category"
+    },
+    "categories": {
+      "painting": "Painting",
+      "print": "Print",
+      "sculpture": "Sculpture",
+      "digital": "Digital",
+      "installation": "Installation",
+      "mixedMedia": "Mixed media"
+    }
+  },
+  "workDetails": {
+    "tagline": "Immersive focus",
+    "back": "Back",
+    "backToCatalog": "Back to catalog",
+    "notFoundTagline": "Work unavailable",
+    "notFoundTitle": "Artwork not found",
+    "notFoundDescription": "The requested piece is no longer in the collection or the link is incorrect. Return to the catalog to continue exploring the avant-garde universe.",
+    "imageAlt": "Large view of {{title}}",
+    "year": "Year",
+    "dimensions": "Dimensions",
+    "category": "Category",
+    "price": "Price",
+    "addToCart": "Add to cart",
+    "addedConfirmation": "Added to cart",
+    "descriptionHeading": "Artist statement"
+  },
+  "cartPage": {
+    "tagline": "Collector's suite",
+    "title": "Your cart",
+    "description": "Finalize your selection and provide the delivery details to reserve these works. All orders are reviewed personally by the artist studio.",
+    "empty": "Your cart is currently empty",
+    "returnToCatalog": "Discover works",
+    "itemsHeading": "Selected works",
+    "checkoutHeading": "Pre-order details",
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "address": "Shipping address",
+      "shipping": "Delivery type"
+    },
+    "errors": {
+      "required": "This field is required",
+      "email": "Enter a valid email",
+      "authRequired": "Sign in to finalize your order",
+      "submit": "We couldn't submit the order. Please try again."
+    },
+    "shippingOptions": {
+      "standard": "Standard (domestic)",
+      "express": "Express courier",
+      "international": "International"
+    },
+    "summary": {
+      "items": "Artworks",
+      "shipping": "Shipping",
+      "total": "Total"
+    },
+    "submit": "Place order",
+    "loading": "Submitting…",
+    "confirmation": "Request sent — we will contact you shortly",
+    "quantity": "Quantity",
+    "decreaseQuantity": "Decrease quantity for {{title}}",
+    "increaseQuantity": "Increase quantity for {{title}}",
+    "unitPrice": "Unit",
+    "subtotal": "Subtotal",
+    "remove": "Remove",
+    "itemImageAlt": "Thumbnail of {{title}}"
+  },
+  "dashboardPage": {
+    "tagline": "Collector console",
+    "welcomeNamed": "Welcome back, {{name}}",
+    "welcomeAnonymous": "Welcome back to your collector space",
+    "profile": {
+      "heading": "Profile details",
+      "name": "Name",
+      "email": "Email",
+      "uid": "User ID",
+      "missing": "Not provided"
+    },
+    "orders": {
+      "heading": "Orders",
+      "viewAll": "View all",
+      "loading": "Loading order history…",
+      "error": "We couldn't load your orders right now.",
+      "empty": "You have not placed any orders yet."
+    },
+    "chat": {
+      "heading": "Direct atelier line",
+      "description": "Discuss artworks, shipping, or commissions directly with the artist studio.",
+      "helper": "All updates will arrive in real time — feel free to introduce yourself and outline your request."
+    }
+  },
+  "adminWorksPage": {
+    "tagline": "Studio curation",
+    "title": "Manage works",
+    "description": "Maintain the live catalogue by adding new pieces, updating details, and curating what is visible to collectors.",
+    "actions": {
+      "add": "Add work"
+    },
+    "loading": "Loading works…",
+    "errors": {
+      "load": "We couldn't load the works right now."
+    },
+    "list": {
+      "empty": "No works have been published yet",
+      "columns": {
+        "title": "Title",
+        "year": "Year",
+        "category": "Category",
+        "price": "Price",
+        "actions": "Actions"
+      },
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Remove \"{{title}}\" from the catalogue?",
+      "noImage": "No image"
+    },
+    "form": {
+      "createHeading": "Create new work",
+      "editHeading": "Edit work",
+      "fields": {
+        "titleEn": "Title (EN)",
+        "titleRu": "Title (RU)",
+        "descriptionEn": "Description (EN)",
+        "descriptionRu": "Description (RU)",
+        "imageUrl": "Image URL",
+        "year": "Year",
+        "dimensions": "Dimensions",
+        "price": "Price",
+        "category": "Category"
+      },
+      "submitCreate": "Save work",
+      "submitEdit": "Update work",
+      "cancel": "Cancel",
+      "errors": {
+        "title": "Provide titles in EN and RU",
+        "description": "Provide descriptions in EN and RU",
+        "imageUrl": "Image URL is required",
+        "year": "Enter a valid year",
+        "dimensions": "Dimensions are required",
+        "price": "Enter a valid price",
+        "category": "Category is required"
+      }
+    },
+    "notifications": {
+      "createSuccess": "Work added",
+      "updateSuccess": "Work updated",
+      "deleteSuccess": "Work removed",
+      "error": "We couldn't complete the action"
+    }
+  },
+  "auth": {
+    "common": {
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "name": "Name",
+      "loading": "Loading…",
+      "logout": "Log out",
+      "goToRegister": "Register",
+      "goToLogin": "Log in",
+      "signedInAs": "Signed in as {{name}}",
+      "account": "Account"
+    },
+    "login": {
+      "tagline": "Access portal",
+      "title": "Sign in",
+      "description": "Enter your credentials to access the collector dashboard and manage your orders.",
+      "submit": "Log in",
+      "noAccount": "No account yet?"
+    },
+    "register": {
+      "tagline": "Begin your journey",
+      "title": "Create account",
+      "description": "Register to save favourites, track pre-orders, and receive atelier updates.",
+      "submit": "Register",
+      "haveAccount": "Already have an account?"
+    },
+    "nav": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalidCredentials": "Incorrect email or password",
+      "tooManyRequests": "Too many attempts. Try again later.",
+      "unexpected": "Something went wrong. Please try again.",
+      "emailInUse": "This email is already registered",
+      "passwordLength": "Password must be at least 6 characters",
+      "passwordMismatch": "Passwords do not match",
+      "unauthorized": "You do not have permission to view this section"
+    }
+  },
+  "chat": {
+    "inputPlaceholder": "Type your message…",
+    "send": "Send",
+    "sending": "Sending…",
+    "loading": "Loading conversation…",
+    "empty": "No messages yet — start the dialogue.",
+    "noChat": "Select a chat to begin",
+    "errors": {
+      "subscription": "We couldn't load this conversation.",
+      "send": "Unable to send message. Try again.",
+      "list": "Unable to load chat list."
+    },
+    "roles": {
+      "user": "Collector",
+      "admin": "Admin"
+    },
+    "admin": {
+      "title": "Studio communications",
+      "heading": "Collector conversations",
+      "description": "Monitor ongoing discussions and reply as the artist or studio curator.",
+      "manualLabel": "Open chat by UID",
+      "manualPlaceholder": "Enter user UID",
+      "manualSubmit": "Open",
+      "refreshHint": "Chat list refreshes automatically when new messages arrive.",
+      "listHeading": "Active threads",
+      "loading": "Loading chats…",
+      "empty": "No conversations yet.",
+      "lastMessageFrom": "Last from {{sender}}",
+      "unknownSender": "Unknown",
+      "activeChatLabel": "Active chat",
+      "selectPrompt": "Choose a collector chat or enter a UID to begin messaging.",
+      "notAuthorized": "Admin rights are required to access the studio inbox.",
+      "accessDeniedHeading": "Access restricted"
+    }
+  },
+  "orders": {
+    "status": {
+      "new": "New",
+      "in_progress": "In progress",
+      "shipped": "Shipped"
+    },
+    "summary": {
+      "title": "Order confirmation",
+      "subtitle": "Pre-order received",
+      "description": "Thank you for your reservation. The studio will contact you shortly to finalise payment and shipping details.",
+      "orderId": "Order #{{id}}",
+      "pendingId": "Pending ID",
+      "createdAt": "Created",
+      "pendingDate": "Date pending",
+      "shippingLabel": "Delivery",
+      "customer": "Customer",
+      "address": "Address",
+      "itemsHeading": "Reserved works",
+      "totals": {
+        "items": "Artworks",
+        "shipping": "Shipping",
+        "grand": "Total"
+      }
+    },
+    "card": {
+      "orderId": "Order #{{id}}"
+    },
+    "history": {
+      "tagline": "Acquisition log",
+      "title": "Order history",
+      "description": "Track every reserved artwork and monitor their fulfilment status.",
+      "loading": "Loading orders…",
+      "error": "We couldn't load your order history.",
+      "empty": "No orders yet — your future acquisitions will appear here."
+    },
+    "admin": {
+      "tagline": "Atelier logistics",
+      "title": "All studio orders",
+      "description": "Monitor collector purchases, confirm logistics, and coordinate delivery statuses.",
+      "loading": "Loading studio orders…",
+      "error": "Unable to load orders right now.",
+      "empty": "No orders recorded yet.",
+      "refresh": "Refresh",
+      "table": {
+        "order": "Order",
+        "customer": "Customer",
+        "items": "Items",
+        "delivery": "Delivery",
+        "status": "Status",
+        "total": "Total"
+      }
+    }
+  }
+}
