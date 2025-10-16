@@ -1,0 +1,130 @@
+[
+  {
+    "id": 1,
+    "title": {
+      "en": "Metamorphosis",
+      "ru": "Метаморфозы"
+    },
+    "image": "https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1200&q=80",
+    "year": 2022,
+    "dimensions": "80 × 60 cm",
+    "price": 1500,
+    "category": "painting",
+    "description": {
+      "en": "Layered acrylic gestures suspended over algorithmic grids explore the tension between organic intuition and coded rhythm.",
+      "ru": "Слоистые акриловые жесты, наложенные на алгоритмические сетки, исследуют напряжение между органической интуицией и кодовой ритмикой."
+    }
+  },
+  {
+    "id": 2,
+    "title": {
+      "en": "Algorithmic Dawn",
+      "ru": "Алгоритмический рассвет"
+    },
+    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80",
+    "year": 2023,
+    "dimensions": "120 × 90 cm",
+    "price": 2300,
+    "category": "print",
+    "description": {
+      "en": "A gradient sunrise rendered through generative code reflects on the meeting point of light, data and memory.",
+      "ru": "Градиентный рассвет, созданный генеративным кодом, размышляет о точке встречи света, данных и памяти."
+    }
+  },
+  {
+    "id": 3,
+    "title": {
+      "en": "Neon Silence",
+      "ru": "Неоновая тишина"
+    },
+    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+    "year": 2021,
+    "dimensions": "70 × 70 cm",
+    "price": 1800,
+    "category": "painting",
+    "description": {
+      "en": "Monochrome lightwaves pulse across the canvas, capturing a quiet urban nightscape in motion.",
+      "ru": "Монохромные световые волны пульсируют по холсту, фиксируя тихой городской пейзаж в движении."
+    }
+  },
+  {
+    "id": 4,
+    "title": {
+      "en": "Fractal Bloom",
+      "ru": "Фрактальное цветение"
+    },
+    "image": "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80",
+    "year": 2020,
+    "dimensions": "40 × 40 × 180 cm",
+    "price": 4200,
+    "category": "sculpture",
+    "description": {
+      "en": "A towering steel and resin totem unfurls in fractal petals, echoing botanical rhythms through industrial matter.",
+      "ru": "Высокий тотем из стали и смолы раскрывается фрактальными лепестками, проводя ботанические ритмы через индустриальную материю."
+    }
+  },
+  {
+    "id": 5,
+    "title": {
+      "en": "Glitched Horizon",
+      "ru": "Сбойный горизонт"
+    },
+    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80&sat=-100",
+    "year": 2024,
+    "dimensions": "90 × 150 cm",
+    "price": 3200,
+    "category": "digital",
+    "description": {
+      "en": "A panoramic landscape collapses into pixelated interference, questioning the reliability of vision in the age of screens.",
+      "ru": "Панорамный ландшафт распадается на пиксельные помехи, ставя под сомнение надёжность зрения в эпоху экранов."
+    }
+  },
+  {
+    "id": 6,
+    "title": {
+      "en": "Resonance Field",
+      "ru": "Поле резонанса"
+    },
+    "image": "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80",
+    "year": 2019,
+    "dimensions": "60 × 60 cm",
+    "price": 980,
+    "category": "print",
+    "description": {
+      "en": "Silkscreen overlays of magnetic diagrams chart invisible conversations between sound and matter.",
+      "ru": "Шелкографические слои магнитных диаграмм фиксируют невидимые беседы между звуком и материей."
+    }
+  },
+  {
+    "id": 7,
+    "title": {
+      "en": "Temporal Weave",
+      "ru": "Временное переплетение"
+    },
+    "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80&sat=50",
+    "year": 2018,
+    "dimensions": "200 × 100 cm",
+    "price": 5600,
+    "category": "installation",
+    "description": {
+      "en": "Interlaced fiber optics respond to ambient movement, weaving a tapestry of shifting color timelines.",
+      "ru": "Переплетённые оптоволокна реагируют на движения вокруг, создавая гобелен из меняющихся цветовых временных линий."
+    }
+  },
+  {
+    "id": 8,
+    "title": {
+      "en": "Spectral Dialogues",
+      "ru": "Спектральные диалоги"
+    },
+    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80&sat=30",
+    "year": 2022,
+    "dimensions": "100 × 75 cm",
+    "price": 2600,
+    "category": "mixedMedia",
+    "description": {
+      "en": "Collaged pigments and conductive ink capture whispered conversations between analog ghosts and digital echoes.",
+      "ru": "Коллаж пигментов и проводящих чернил фиксирует шёпот беседы между аналоговыми призраками и цифровыми эхами."
+    }
+  }
+]
