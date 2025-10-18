@@ -2,10 +2,19 @@ import PropTypes from "prop-types";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-const statusClasses = {
-  new: "bg-sky-400/10 text-sky-300 border-sky-400/40",
-  in_progress: "bg-amber-400/10 text-amber-300 border-amber-400/40",
-  shipped: "bg-emerald-400/10 text-emerald-300 border-emerald-400/40",
+const statusStyles = {
+  new: {
+    badge: "bg-sky-400/10 text-sky-300 border-sky-400/40",
+    dot: "bg-sky-300",
+  },
+  in_progress: {
+    badge: "bg-amber-400/10 text-amber-300 border-amber-400/40",
+    dot: "bg-amber-300",
+  },
+  shipped: {
+    badge: "bg-emerald-400/10 text-emerald-300 border-emerald-400/40",
+    dot: "bg-emerald-300",
+  },
 };
 
 function OrderCard({ order, currencyFormatter }) {
@@ -36,7 +45,7 @@ function OrderCard({ order, currencyFormatter }) {
   const shippingCost = order.delivery?.cost ?? 0;
   const grandTotal = itemsTotal + shippingCost;
   const status = order.status || "new";
-  const badgeClassName = statusClasses[status] || statusClasses.new;
+  const statusStyle = statusStyles[status] || statusStyles.new;
 
   return (
     <article className="space-y-4 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-xl backdrop-blur-sm transition hover:shadow-2xl dark:border-slate-800/80 dark:bg-slate-950/80">
@@ -47,7 +56,10 @@ function OrderCard({ order, currencyFormatter }) {
               id: order._id ? order._id.slice(-6).toUpperCase() : t("orders.summary.pendingId"),
             })}
           </span>
-          <span className={`rounded-full border px-3 py-1 font-semibold ${badgeClassName}`}>
+          <span
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold ${statusStyle.badge}`}
+          >
+            <span className={`h-2.5 w-2.5 rounded-full ${statusStyle.dot}`} aria-hidden="true" />
             {t(`orders.status.${status}`, { defaultValue: status })}
           </span>
         </div>

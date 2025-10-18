@@ -6,6 +6,7 @@ import { fetchWorkById } from "../services/worksApi";
 import Seo from "../components/Seo";
 import PageLoader from "../components/PageLoader";
 import axios from "axios";
+import { motion as Motion } from "framer-motion";
 
 function WorkDetails() {
   const { id } = useParams();
@@ -164,7 +165,12 @@ function WorkDetails() {
   const image = work.image ?? work.imageUrl ?? "";
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[7fr_5fr]">
+    <Motion.div
+      className="grid gap-12 lg:grid-cols-[7fr_5fr]"
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
       <Seo
         titleKey="seo.work.title"
         descriptionKey="seo.work.description"
@@ -172,14 +178,24 @@ function WorkDetails() {
         translationValues={{ title, year: work.year, category: t(`catalogPage.categories.${work.category}`) }}
         image={image}
       />
-      <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white/50 shadow-2xl dark:border-slate-800/60 dark:bg-slate-900/60">
+      <Motion.div
+        className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white/50 shadow-2xl dark:border-slate-800/60 dark:bg-slate-900/60"
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+      >
         <img
           src={image}
           alt={t("workDetails.imageAlt", { title })}
           className="h-full w-full max-h-[720px] object-cover"
         />
-      </div>
-      <aside className="flex flex-col gap-8">
+      </Motion.div>
+      <Motion.aside
+        className="flex flex-col gap-8"
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut", delay: 0.12 }}
+      >
         <Link
           to="/catalog"
           className="inline-flex w-max items-center gap-3 rounded-full border border-slate-300/60 bg-white/70 px-5 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-slate-600 transition hover:border-teal-400 hover:text-teal-500 dark:border-slate-700/60 dark:bg-slate-900/70 dark:text-slate-300 dark:hover:border-teal-400 dark:hover:text-teal-300"
@@ -241,8 +257,8 @@ function WorkDetails() {
           </h2>
           <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">{description}</p>
         </section>
-      </aside>
-    </div>
+      </Motion.aside>
+    </Motion.div>
   );
 }
 

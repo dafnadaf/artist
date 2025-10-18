@@ -2,10 +2,19 @@ import PropTypes from "prop-types";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-const statusBadge = {
-  new: "bg-sky-400/10 text-sky-300 border-sky-400/40",
-  in_progress: "bg-amber-400/10 text-amber-300 border-amber-400/40",
-  shipped: "bg-emerald-400/10 text-emerald-300 border-emerald-400/40",
+const statusVisuals = {
+  new: {
+    badge: "bg-sky-400/10 text-sky-300 border-sky-400/40",
+    dot: "bg-sky-300",
+  },
+  in_progress: {
+    badge: "bg-amber-400/10 text-amber-300 border-amber-400/40",
+    dot: "bg-amber-300",
+  },
+  shipped: {
+    badge: "bg-emerald-400/10 text-emerald-300 border-emerald-400/40",
+    dot: "bg-emerald-300",
+  },
 };
 
 function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
@@ -68,6 +77,7 @@ function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
             const shippingCost = order.delivery?.cost ?? 0;
             const grandTotal = itemsTotal + shippingCost;
             const status = order.status || "new";
+            const statusStyle = statusVisuals[status] || statusVisuals.new;
 
             return (
               <tr key={order._id} className="transition hover:bg-teal-400/5 dark:hover:bg-teal-400/10">
@@ -110,7 +120,10 @@ function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`inline-flex items-center rounded-full border px-3 py-1 font-semibold ${statusBadge[status] || statusBadge.new}`}>
+                  <span
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold ${statusStyle.badge}`}
+                  >
+                    <span className={`h-2.5 w-2.5 rounded-full ${statusStyle.dot}`} aria-hidden="true" />
                     {t(`orders.status.${status}`, { defaultValue: status })}
                   </span>
                 </td>

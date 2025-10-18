@@ -1,27 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import CatalogPage from "./pages/CatalogPage";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Dashboard from "./pages/Dashboard";
-import OrderHistory from "./pages/OrderHistory";
-import AdminChats from "./pages/AdminChats";
-import AdminOrders from "./pages/AdminOrders";
-import AdminPanel from "./pages/AdminPanel";
-import WorkDetails from "./pages/WorkDetails";
-import CartPage from "./pages/CartPage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ArView from "./pages/ArView";
-import NotFound from "./pages/NotFound";
-import ServerError from "./pages/ServerError";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ThemeContext from "./context/ThemeContext";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import Footer from "./components/Footer";
+import PageLoader from "./components/PageLoader";
+
+const Home = lazy(() => import("./pages/Home"));
+const CatalogPage = lazy(() => import("./pages/CatalogPage"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const OrderHistory = lazy(() => import("./pages/OrderHistory"));
+const AdminChats = lazy(() => import("./pages/AdminChats"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
+const WorkDetails = lazy(() => import("./pages/WorkDetails"));
+const CartPage = lazy(() => import("./pages/CartPage"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ArView = lazy(() => import("./pages/ArView"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const ServerError = lazy(() => import("./pages/ServerError"));
 
 const THEME_STORAGE_KEY = "artist-theme";
 
@@ -92,72 +95,77 @@ function App() {
       <AuthProvider>
         <CartProvider>
           {isArRoute ? (
-            <Routes>
-              <Route path="/ar-view/:id" element={<ArView />} />
-              <Route path="*" element={<ArView />} />
-            </Routes>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/ar-view/:id" element={<ArView />} />
+                <Route path="*" element={<ArView />} />
+              </Routes>
+            </Suspense>
           ) : (
-            <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-900 transition-colors duration-500 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
+            <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-900 transition-colors duration-500 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
               <Navbar />
-              <main className="mx-auto w-full max-w-6xl px-6 py-12">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/catalog" element={<CatalogPage />} />
-                  <Route path="/catalog/:id" element={<WorkDetails />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route
-                    path="/dashboard"
-                    element=
-                      {
-                        <ProtectedRoute>
-                          <Dashboard />
-                        </ProtectedRoute>
-                      }
-                  />
-                  <Route
-                    path="/dashboard/orders"
-                    element=
-                      {
-                        <ProtectedRoute>
-                          <OrderHistory />
-                        </ProtectedRoute>
-                      }
-                  />
-                  <Route
-                    path="/admin/chats"
-                    element=
-                      {
-                        <ProtectedRoute requireAdmin>
-                          <AdminChats />
-                        </ProtectedRoute>
-                      }
-                  />
-                  <Route
-                    path="/admin/orders"
-                    element=
-                      {
-                        <ProtectedRoute requireAdmin>
-                          <AdminOrders />
-                        </ProtectedRoute>
-                      }
-                  />
-                  <Route
-                    path="/admin/works"
-                    element=
-                      {
-                        <ProtectedRoute requireAdmin>
-                          <AdminPanel />
-                        </ProtectedRoute>
-                      }
-                  />
-                  <Route path="/cart" element={<CartPage />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/500" element={<ServerError />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
+              <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/catalog" element={<CatalogPage />} />
+                    <Route path="/catalog/:id" element={<WorkDetails />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route
+                      path="/dashboard"
+                      element=
+                        {
+                          <ProtectedRoute>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                      path="/dashboard/orders"
+                      element=
+                        {
+                          <ProtectedRoute>
+                            <OrderHistory />
+                          </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                      path="/admin/chats"
+                      element=
+                        {
+                          <ProtectedRoute requireAdmin>
+                            <AdminChats />
+                          </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                      path="/admin/orders"
+                      element=
+                        {
+                          <ProtectedRoute requireAdmin>
+                            <AdminOrders />
+                          </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                      path="/admin/works"
+                      element=
+                        {
+                          <ProtectedRoute requireAdmin>
+                            <AdminPanel />
+                          </ProtectedRoute>
+                        }
+                    />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/500" element={<ServerError />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
               </main>
+              <Footer />
             </div>
           )}
         </CartProvider>

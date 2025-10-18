@@ -1,6 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import CartItem from "../components/CartItem";
 import OrderSummary from "../components/OrderSummary";
 import { useCart } from "../context/CartContext";
@@ -60,17 +63,56 @@ function CartPage() {
   const { items, removeItem, updateQuantity, total, clear } = useCart();
   const { user, profile } = useAuth();
   const { t, i18n } = useTranslation();
-  const [formValues, setFormValues] = useState({
-    name: "",
-    email: "",
-    address: "",
-    shipping: SHIPPING_OPTIONS[0].value,
-  });
-  const [errors, setErrors] = useState({});
   const [orderResult, setOrderResult] = useState(null);
   const [customerSnapshot, setCustomerSnapshot] = useState(null);
   const [submitError, setSubmitError] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  const orderSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string({ required_error: t("cartPage.errors.required") }).min(1, t("cartPage.errors.required")),
+        email: z
+          .string({ required_error: t("cartPage.errors.required") })
+          .min(1, t("cartPage.errors.required"))
+          .email(t("cartPage.errors.email")),
+        address: z.string({ required_error: t("cartPage.errors.required") }).min(1, t("cartPage.errors.required")),
+        shipping: z.enum(SHIPPING_OPTIONS.map((option) => option.value), {
+          errorMap: () => ({ message: t("cartPage.errors.required") }),
+        }),
+      }),
+    [t],
+  );
+
+  const defaultValues = useMemo(
+    () => ({
+      name: profile?.name ?? "",
+      email: profile?.email ?? user?.email ?? "",
+      address: "",
+      shipping: SHIPPING_OPTIONS[0].value,
+    }),
+    [profile?.name, profile?.email, user?.email],
+  );
+
+  const {
+    register: registerField,
+    handleSubmit,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(orderSchema),
+    defaultValues,
+    mode: "onBlur",
+  });
+
+  useEffect(() => {
+    reset((current) => ({
+      ...current,
+      name: current.name || defaultValues.name,
+      email: current.email || defaultValues.email,
+      shipping: current.shipping || defaultValues.shipping,
+    }));
+  }, [defaultValues.name, defaultValues.email, defaultValues.shipping, reset]);
 
   const currencyFormatter = useMemo(
     () =>
@@ -82,60 +124,25 @@ function CartPage() {
     [i18n.language],
   );
 
+  const selectedShipping = watch("shipping");
+
   const shippingCost = useMemo(() => {
-    const option = SHIPPING_OPTIONS.find((item) => item.value === formValues.shipping);
+    const option = SHIPPING_OPTIONS.find((item) => item.value === selectedShipping);
     return option ? option.price : 0;
-  }, [formValues.shipping]);
+  }, [selectedShipping]);
 
   const grandTotal = useMemo(() => total + shippingCost, [total, shippingCost]);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormValues((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-    setSubmitError("");
-  };
-
-  const validate = () => {
-    const validationErrors = {};
-    if (!formValues.name.trim()) {
-      validationErrors.name = t("cartPage.errors.required");
-    }
-    if (!formValues.email.trim()) {
-      validationErrors.email = t("cartPage.errors.required");
-    } else if (!/^[\w.-]+@([\w-]+\.)+[\w-]{2,}$/u.test(formValues.email.trim())) {
-      validationErrors.email = t("cartPage.errors.email");
-    }
-    if (!formValues.address.trim()) {
-      validationErrors.address = t("cartPage.errors.required");
-    }
-
-    return validationErrors;
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const validationErrors = validate();
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    setErrors({});
+  const onSubmit = async (values) => {
     if (!user) {
       setSubmitError(t("cartPage.errors.authRequired"));
       return;
     }
 
-    setLoading(true);
     setSubmitError("");
-
-    const name = formValues.name.trim();
-    const email = formValues.email.trim();
-    const address = formValues.address.trim();
+    const name = values.name.trim();
+    const email = values.email.trim();
+    const address = values.address.trim();
 
     const payload = {
       userId: user.uid,
@@ -146,7 +153,7 @@ function CartPage() {
         quantity: item.quantity,
       })),
       delivery: {
-        type: formValues.shipping,
+        type: values.shipping,
         address,
         cost: shippingCost,
       },
@@ -161,7 +168,7 @@ function CartPage() {
       setOrderResult(order);
       setCustomerSnapshot(payload.customer);
       clear();
-      setFormValues({
+      reset({
         name: payload.customer.name,
         email: payload.customer.email,
         address: "",
@@ -171,8 +178,6 @@ function CartPage() {
       console.error("Failed to submit order", error);
       const apiMessage = error.response?.data?.message;
       setSubmitError(t(mapOrderErrorToKey(apiMessage)));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -232,21 +237,21 @@ function CartPage() {
             <h2 className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
               {t("cartPage.checkoutHeading")}
             </h2>
-            <form className="flex flex-col gap-6" onSubmit={handleSubmit} noValidate>
+            <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className="flex flex-col gap-2">
                 <label htmlFor="name" className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
                   {t("cartPage.form.name")}
                 </label>
                 <input
                   id="name"
-                  name="name"
                   type="text"
-                  value={formValues.name}
-                  onChange={handleChange}
+                  {...registerField("name", {
+                    onChange: () => setSubmitError(""),
+                  })}
                   className="rounded-xl border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-800 shadow-inner transition focus:border-teal-400 focus:outline-none dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-100"
                 />
                 {errors.name ? (
-                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.name}</span>
+                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.name.message}</span>
                 ) : null}
               </div>
               <div className="flex flex-col gap-2">
@@ -255,14 +260,14 @@ function CartPage() {
                 </label>
                 <input
                   id="email"
-                  name="email"
                   type="email"
-                  value={formValues.email}
-                  onChange={handleChange}
+                  {...registerField("email", {
+                    onChange: () => setSubmitError(""),
+                  })}
                   className="rounded-xl border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-800 shadow-inner transition focus:border-teal-400 focus:outline-none dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-100"
                 />
                 {errors.email ? (
-                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.email}</span>
+                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.email.message}</span>
                 ) : null}
               </div>
               <div className="flex flex-col gap-2">
@@ -271,14 +276,14 @@ function CartPage() {
                 </label>
                 <textarea
                   id="address"
-                  name="address"
                   rows={3}
-                  value={formValues.address}
-                  onChange={handleChange}
+                  {...registerField("address", {
+                    onChange: () => setSubmitError(""),
+                  })}
                   className="rounded-xl border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-800 shadow-inner transition focus:border-teal-400 focus:outline-none dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-100"
                 />
                 {errors.address ? (
-                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.address}</span>
+                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.address.message}</span>
                 ) : null}
               </div>
               <div className="flex flex-col gap-2">
@@ -287,9 +292,9 @@ function CartPage() {
                 </label>
                 <select
                   id="shipping"
-                  name="shipping"
-                  value={formValues.shipping}
-                  onChange={handleChange}
+                  {...registerField("shipping", {
+                    onChange: () => setSubmitError(""),
+                  })}
                   className="rounded-xl border border-slate-200/70 bg-white/80 px-4 py-3 text-sm text-slate-800 shadow-inner transition focus:border-teal-400 focus:outline-none dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-100"
                 >
                   {SHIPPING_OPTIONS.map((option) => (
@@ -298,6 +303,9 @@ function CartPage() {
                     </option>
                   ))}
                 </select>
+                {errors.shipping ? (
+                  <span className="text-xs font-medium uppercase tracking-[0.2em] text-rose-400">{errors.shipping.message}</span>
+                ) : null}
               </div>
               <div className="flex flex-col gap-3 rounded-2xl border border-slate-200/70 bg-white/80 p-5 text-sm text-slate-600 shadow-inner dark:border-slate-700/70 dark:bg-slate-900/60 dark:text-slate-300">
                 <div className="flex items-center justify-between">
@@ -324,9 +332,16 @@ function CartPage() {
               <button
                 type="submit"
                 className="inline-flex items-center justify-center gap-3 rounded-full border border-teal-400/60 bg-teal-400/10 px-8 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-teal-400 transition hover:bg-teal-400/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-teal-400/20 dark:text-teal-200 dark:hover:bg-teal-400/30 dark:focus-visible:ring-offset-slate-900"
-                disabled={items.length === 0 || loading}
+                disabled={items.length === 0 || isSubmitting}
               >
-                {loading ? t("cartPage.loading") : t("cartPage.submit")}
+                {isSubmitting ? (
+                  <span className="inline-flex items-center gap-3">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-teal-300 border-t-transparent" aria-hidden="true" />
+                    {t("cartPage.loading")}
+                  </span>
+                ) : (
+                  t("cartPage.submit")
+                )}
               </button>
               {submitError ? (
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-rose-400">{submitError}</p>

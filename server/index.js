@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import ordersRouter from "./routes/orders.js";
 import usersRouter from "./routes/users.js";
 import worksRouter from "./routes/works.js";
@@ -12,6 +13,14 @@ import worksRouter from "./routes/works.js";
 mongoose.set("strictQuery", true);
 
 const app = express();
+app.set("trust proxy", 1);
+app.disable("x-powered-by");
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

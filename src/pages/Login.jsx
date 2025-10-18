@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../context/AuthContext";
 import Seo from "../components/Seo";
+import PageLoader from "../components/PageLoader";
 
 const mapAuthErrorToKey = (code) => {
   switch (code) {
@@ -25,64 +29,45 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [fieldErrors, setFieldErrors] = useState({});
+  const loginSchema = useMemo(
+    () =>
+      z.object({
+        email: z
+          .string({ required_error: t("auth.errors.required") })
+          .min(1, t("auth.errors.required"))
+          .email(t("auth.errors.invalidEmail")),
+        password: z.string({ required_error: t("auth.errors.required") }).min(1, t("auth.errors.required")),
+      }),
+    [t],
+  );
+
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+    mode: "onBlur",
+  });
+
   const [submitError, setSubmitError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
-  };
-
-  const validate = () => {
-    const errors = {};
-
-    if (!form.email.trim()) {
-      errors.email = t("auth.errors.required");
-    }
-
-    if (!form.password) {
-      errors.password = t("auth.errors.required");
-    }
-
-    return errors;
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const errors = validate();
-
-    if (Object.keys(errors).length > 0) {
-      setFieldErrors(errors);
-      return;
-    }
-
-    setFieldErrors({});
-    setSubmitting(true);
+  const onSubmit = async (values) => {
     setSubmitError("");
 
     try {
-      await login(form.email.trim(), form.password);
+      await login(values.email.trim(), values.password);
       const redirect = location.state?.from || "/dashboard";
       navigate(redirect, { replace: true });
     } catch (error) {
       console.error("Login failed", error);
       setSubmitError(t(mapAuthErrorToKey(error.code)));
-    } finally {
-      setSubmitting(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-sm uppercase tracking-[0.35em] text-slate-600 dark:text-slate-400">
-          {t("auth.common.loading")}
-        </p>
-      </div>
-    );
+    return <PageLoader labelKey="auth.common.loading" />;
   }
 
   if (user) {
@@ -106,7 +91,10 @@ function Login() {
           {t("auth.login.description")}
         </p>
       </header>
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-3xl border border-slate-200/70 bg-white/70 p-8 shadow-xl backdrop-blur-md dark:border-slate-800/70 dark:bg-slate-950/70">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-6 rounded-3xl border border-slate-200/70 bg-white/70 p-8 shadow-xl backdrop-blur-md dark:border-slate-800/70 dark:bg-slate-950/70"
+      >
         <div className="space-y-2">
           <label htmlFor="email" className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-500 dark:text-slate-300">
             {t("auth.common.email")}
@@ -116,12 +104,13 @@ function Login() {
             name="email"
             type="email"
             autoComplete="email"
-            value={form.email}
-            onChange={handleChange}
+            {...registerField("email", {
+              onChange: () => setSubmitError(""),
+            })}
             className="w-full rounded-xl border border-slate-300/60 bg-white/90 px-4 py-3 text-sm uppercase tracking-[0.25em] text-slate-900 outline-none transition focus:border-teal-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
           />
-          {fieldErrors.email ? (
-            <p className="text-xs uppercase tracking-[0.3em] text-rose-500">{fieldErrors.email}</p>
+          {errors.email ? (
+            <p className="text-xs uppercase tracking-[0.3em] text-rose-500">{errors.email.message}</p>
           ) : null}
         </div>
         <div className="space-y-2">
@@ -136,12 +125,13 @@ function Login() {
             name="password"
             type="password"
             autoComplete="current-password"
-            value={form.password}
-            onChange={handleChange}
+            {...registerField("password", {
+              onChange: () => setSubmitError(""),
+            })}
             className="w-full rounded-xl border border-slate-300/60 bg-white/90 px-4 py-3 text-sm uppercase tracking-[0.25em] text-slate-900 outline-none transition focus:border-teal-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
           />
-          {fieldErrors.password ? (
-            <p className="text-xs uppercase tracking-[0.3em] text-rose-500">{fieldErrors.password}</p>
+          {errors.password ? (
+            <p className="text-xs uppercase tracking-[0.3em] text-rose-500">{errors.password.message}</p>
           ) : null}
         </div>
         {submitError ? (
@@ -152,9 +142,9 @@ function Login() {
         <button
           type="submit"
           className="w-full rounded-full bg-gradient-to-r from-teal-400 via-fuchsia-500 to-amber-400 px-6 py-3 text-sm font-bold uppercase tracking-[0.4em] text-slate-900 transition-transform duration-300 hover:scale-[1.02] focus:outline-none disabled:cursor-not-allowed disabled:opacity-70"
-          disabled={submitting}
+          disabled={isSubmitting}
         >
-          {submitting ? t("auth.common.loading") : t("auth.login.submit")}
+          {isSubmitting ? t("auth.common.loading") : t("auth.login.submit")}
         </button>
       </form>
       <p className="text-center text-xs uppercase tracking-[0.3em] text-slate-600 dark:text-slate-400">
