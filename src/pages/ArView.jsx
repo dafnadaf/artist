@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import Seo from "../components/Seo";
 
 const SCRIPT_DEFINITIONS = [
   {
@@ -67,6 +69,7 @@ async function assetExists(url) {
 function ArView() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { t } = useTranslation();
   const [scriptsReady, setScriptsReady] = useState(false);
   const [scriptError, setScriptError] = useState(null);
   const [targetSrc, setTargetSrc] = useState("");
@@ -104,7 +107,7 @@ function ArView() {
 
   useEffect(() => {
     if (!id) {
-      setAssetError("Идентификатор работы не указан.");
+      setAssetError("arView.errors.missingId");
       return;
     }
 
@@ -124,9 +127,7 @@ function ArView() {
       }
 
       if (!targetAvailable) {
-        setAssetError(
-          "Файл маркера (targets.mind) не найден. Добавьте его в public/assets/works/{id}.",
-        );
+        setAssetError("arView.errors.missingMarker");
         setTargetSrc("");
         return;
       }
@@ -134,9 +135,7 @@ function ArView() {
       setTargetSrc(targetCandidate);
 
       let resolvedModel = "";
-      // eslint-disable-next-line no-restricted-syntax
       for (const candidate of modelCandidates) {
-        // eslint-disable-next-line no-await-in-loop
         const exists = await assetExists(candidate);
 
         if (cancelled) {
@@ -150,9 +149,7 @@ function ArView() {
       }
 
       if (!resolvedModel) {
-        setAssetError(
-          "3D-модель не найдена. Добавьте model.glb или model.gltf в public/assets/works/{id}.",
-        );
+        setAssetError("arView.errors.missingModel");
         setModelSrc("");
         return;
       }
@@ -161,9 +158,7 @@ function ArView() {
       setAssetError(null);
 
       for (const extension of MARKER_EXTENSIONS) {
-        // eslint-disable-next-line no-await-in-loop
         const candidate = `${basePath}/marker.${extension}`;
-        // eslint-disable-next-line no-await-in-loop
         const exists = await assetExists(candidate);
 
         if (cancelled) {
@@ -201,51 +196,71 @@ function ArView() {
 
   if (scriptError) {
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center bg-black/95 p-6 text-center text-white">
-        <p className="max-w-md text-lg font-semibold">Не удалось загрузить библиотеки для WebAR.</p>
-        <p className="mt-4 max-w-md text-sm text-slate-200">{scriptError.message}</p>
-        <button
-          className="mt-8 rounded border border-white px-6 py-3 text-sm uppercase tracking-widest"
-          type="button"
-          onClick={() => navigate(-1)}
-        >
-          Вернуться назад
-        </button>
-      </div>
+      <>
+        <Seo
+          titleKey="seo.arView.errorTitle"
+          descriptionKey="seo.arView.errorDescription"
+          keywordsKey="seo.arView.keywords"
+          translationValues={{ id: id ?? "" }}
+        />
+        <div className="flex h-screen w-screen flex-col items-center justify-center bg-black/95 p-6 text-center text-white">
+          <p className="max-w-md text-lg font-semibold">{t("arView.errors.library")}</p>
+          <p className="mt-4 max-w-md text-sm text-slate-200">{scriptError.message}</p>
+          <button
+            className="mt-8 rounded border border-white px-6 py-3 text-sm uppercase tracking-widest"
+            type="button"
+            onClick={() => navigate(-1)}
+          >
+            {t("arView.actions.back")}
+          </button>
+        </div>
+      </>
     );
   }
 
   if (!scriptsReady || !targetSrc || !modelSrc) {
     return (
-      <div className="flex h-screen w-screen flex-col items-center justify-center bg-black text-white">
-        <div className="animate-pulse text-sm uppercase tracking-[0.4em] text-slate-200">Загрузка AR-сцены…</div>
-        {assetError ? (
-          <p className="mt-6 max-w-md text-center text-sm text-red-300">{assetError}</p>
-        ) : (
-          <p className="mt-6 max-w-md text-center text-xs text-slate-300">
-            Убедитесь, что файлы targets.mind и модель размещены в каталоге public/assets/works/{id}.
-          </p>
-        )}
-      </div>
+      <>
+        <Seo
+          titleKey="seo.arView.loadingTitle"
+          descriptionKey="seo.arView.loadingDescription"
+          keywordsKey="seo.arView.keywords"
+          translationValues={{ id: id ?? "" }}
+        />
+        <div className="flex h-screen w-screen flex-col items-center justify-center bg-black text-white">
+          <div className="animate-pulse text-sm uppercase tracking-[0.4em] text-slate-200">{t("arView.loading")}</div>
+          {assetError ? (
+            <p className="mt-6 max-w-md text-center text-sm text-red-300">{t(assetError, { id })}</p>
+          ) : (
+            <p className="mt-6 max-w-md text-center text-xs text-slate-300">{t("arView.instructions.missingAssets", { id })}</p>
+          )}
+        </div>
+      </>
     );
   }
 
   return (
     <div className="relative flex h-screen w-screen flex-col bg-black text-white">
+      <Seo
+        titleKey="seo.arView.title"
+        descriptionKey="seo.arView.description"
+        keywordsKey="seo.arView.keywords"
+        translationValues={{ id: id ?? "" }}
+      />
       <header className="pointer-events-none absolute left-0 right-0 top-0 z-10 flex flex-col gap-4 bg-gradient-to-b from-black/80 to-black/20 p-6 text-center text-xs uppercase tracking-[0.35em]">
-        <span className="text-sm font-semibold tracking-[0.4em]">Дополненная реальность</span>
-        <span>Наведите камеру смартфона на маркер, чтобы увидеть работу.</span>
+        <span className="text-sm font-semibold tracking-[0.4em]">{t("arView.header.title")}</span>
+        <span>{t("arView.header.subtitle")}</span>
         {markerImage ? (
           <a
             className="pointer-events-auto self-center rounded border border-white/40 px-4 py-2 text-[0.65rem] tracking-[0.3em] text-white transition hover:border-white"
             href={markerImage}
             download
           >
-            Скачать маркер
+            {t("arView.actions.downloadMarker")}
           </a>
         ) : (
           <span className="text-[0.65rem] tracking-[0.3em] text-slate-200">
-            Добавьте marker.(png|jpg|jpeg|webp), чтобы предложить скачивание маркера.
+            {t("arView.instructions.noMarkerFile")}
           </span>
         )}
       </header>
@@ -255,32 +270,32 @@ function ArView() {
         type="button"
         onClick={() => navigate(-1)}
       >
-        Назад
+        {t("arView.actions.back")}
       </button>
 
       <div className="relative h-full w-full">
         <a-scene
-          mindar-image={`imageTargetSrc: ${targetSrc};`} // eslint-disable-line react/no-unknown-property
-          embedded // eslint-disable-line react/no-unknown-property
-          color-space="sRGB" // eslint-disable-line react/no-unknown-property
-          renderer="colorManagement: true;" // eslint-disable-line react/no-unknown-property
-          vr-mode-ui="enabled: false" // eslint-disable-line react/no-unknown-property
-          device-orientation-permission-ui="enabled: true" // eslint-disable-line react/no-unknown-property
+          mindar-image={`imageTargetSrc: ${targetSrc};`}
+          embedded
+          color-space="sRGB"
+          renderer="colorManagement: true;"
+          vr-mode-ui="enabled: false"
+          device-orientation-permission-ui="enabled: true"
         >
-          <a-assets> {/* eslint-disable-line react/no-unknown-property */}
-            <a-asset-item id="mindar-model" src={modelSrc} /> {/* eslint-disable-line react/no-unknown-property */}
+          <a-assets>
+            <a-asset-item id="mindar-model" src={modelSrc} />
           </a-assets>
 
           <a-camera
-            position="0 0 0" // eslint-disable-line react/no-unknown-property
-            look-controls="enabled: false" // eslint-disable-line react/no-unknown-property
+            position="0 0 0"
+            look-controls="enabled: false"
           />
 
-          <a-entity mindar-image-target="targetIndex: 0"> {/* eslint-disable-line react/no-unknown-property */}
+          <a-entity mindar-image-target="targetIndex: 0">
             <a-gltf-model
-              src="#mindar-model" // eslint-disable-line react/no-unknown-property
-              position="0 0 0" // eslint-disable-line react/no-unknown-property
-              scale="0.2 0.2 0.2" // eslint-disable-line react/no-unknown-property
+              src="#mindar-model"
+              position="0 0 0"
+              scale="0.2 0.2 0.2"
             />
           </a-entity>
         </a-scene>

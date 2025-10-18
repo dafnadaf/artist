@@ -6,12 +6,30 @@ import OrderSummary from "../components/OrderSummary";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import Seo from "../components/Seo";
 
 const SHIPPING_OPTIONS = [
   { value: "standard", price: 0 },
   { value: "express", price: 45 },
   { value: "international", price: 95 },
 ];
+
+const mapOrderErrorToKey = (message) => {
+  if (!message) {
+    return "cartPage.errors.submit";
+  }
+
+  switch (message) {
+    case "userId is required":
+      return "cartPage.errors.authRequired";
+    case "At least one item is required":
+      return "cartPage.errors.noItems";
+    case "Delivery address is required":
+      return "cartPage.errors.addressRequired";
+    default:
+      return "cartPage.errors.submit";
+  }
+};
 
 function CartPage() {
   const { items, removeItem, updateQuantity, total, clear } = useCart();
@@ -126,7 +144,8 @@ function CartPage() {
       });
     } catch (error) {
       console.error("Failed to submit order", error);
-      setSubmitError(t("cartPage.errors.submit"));
+      const apiMessage = error.response?.data?.message;
+      setSubmitError(t(mapOrderErrorToKey(apiMessage)));
     } finally {
       setLoading(false);
     }
@@ -134,6 +153,11 @@ function CartPage() {
 
   return (
     <div className="flex flex-col gap-12">
+      <Seo
+        titleKey="seo.cart.title"
+        descriptionKey="seo.cart.description"
+        keywordsKey="seo.cart.keywords"
+      />
       <header className="flex flex-col gap-4">
         <span className="text-xs font-semibold uppercase tracking-[0.4em] text-teal-400">
           {t("cartPage.tagline")}

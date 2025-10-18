@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import OrderCard from "../components/OrderCard";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import Seo from "../components/Seo";
 
 function OrderHistory() {
   const { user } = useAuth();
@@ -60,6 +61,11 @@ function OrderHistory() {
 
   return (
     <section className="space-y-10">
+      <Seo
+        titleKey="seo.orderHistory.title"
+        descriptionKey="seo.orderHistory.description"
+        keywordsKey="seo.orderHistory.keywords"
+      />
       <header className="space-y-4">
         <p className="text-xs uppercase tracking-[0.4em] text-teal-400">{t("orders.history.tagline")}</p>
         <h1 className="text-3xl font-black uppercase tracking-[0.35em] text-slate-900 dark:text-slate-100">

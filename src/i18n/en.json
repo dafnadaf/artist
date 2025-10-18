@@ -75,7 +75,9 @@
       "required": "This field is required",
       "email": "Enter a valid email",
       "authRequired": "Sign in to finalize your order",
-      "submit": "We couldn't submit the order. Please try again."
+      "submit": "We couldn't submit the order. Please try again.",
+      "noItems": "Add at least one artwork before placing an order.",
+      "addressRequired": "Enter a delivery address."
     },
     "shippingOptions": {
       "standard": "Standard (domestic)",
@@ -309,6 +311,123 @@
         "status": "Status",
         "total": "Total"
       }
+    }
+  },
+  "brand": "AvantArt",
+  "navigation": {
+    "toggle": "Toggle navigation",
+    "brandAria": "Go to AvantArt home"
+  },
+  "homePage": {
+    "intro": "Avant-garde visions unfolding in immersive digital canvases. Explore a world of daring colors, architectural rhythms, and expressive abstraction shaped for the modern collector."
+  },
+  "aboutPage": {
+    "description": "Biography, manifestos, and press materials will live here. Frame the artist's journey across experimental mediums and the inspirations shaping each collection."
+  },
+  "contactPage": {
+    "description": "Contact forms, studio visits, and collaboration inquiries will live here. Connect with the atelier to commission bespoke art or to schedule an immersive viewing."
+  },
+  "arView": {
+    "loading": "Preparing AR scene…",
+    "errors": {
+      "library": "We couldn't load the WebAR libraries.",
+      "missingId": "The artwork identifier is missing.",
+      "missingMarker": "The targets.mind file is missing. Place it in public/assets/works/{{id}}.",
+      "missingModel": "The 3D model is missing. Add model.glb or model.gltf to public/assets/works/{{id}}."
+    },
+    "instructions": {
+      "missingAssets": "Ensure targets.mind and the 3D model are stored in public/assets/works/{{id}}.",
+      "noMarkerFile": "Add marker.(png|jpg|jpeg|webp) to offer a downloadable marker."
+    },
+    "header": {
+      "title": "Augmented reality",
+      "subtitle": "Point your device at the marker to visualise the artwork."
+    },
+    "actions": {
+      "back": "Go back",
+      "downloadMarker": "Download marker"
+    }
+  },
+  "seo": {
+    "home": {
+      "title": "AvantArt — Avant-garde digital art studio",
+      "description": "Discover immersive avant-garde artworks, curated collections, and bespoke commissions from the AvantArt studio.",
+      "keywords": "avant-garde art, contemporary artist, digital gallery, immersive art"
+    },
+    "catalog": {
+      "title": "Catalogue — AvantArt",
+      "description": "Browse curated works across media, years, and formats from the AvantArt collection.",
+      "keywords": "art catalogue, avant-garde works, art for sale, contemporary art"
+    },
+    "work": {
+      "title": "AvantArt — {{title}}",
+      "description": "Explore {{title}} ({{year}}) and discover its story, dimensions, and investment details within the AvantArt collection.",
+      "keywords": "AvantArt, {{title}}, avant-garde art, {{category}}",
+      "loadingTitle": "Loading artwork — AvantArt",
+      "loadingDescription": "Fetching artwork details from the AvantArt collection.",
+      "notFoundTitle": "Artwork not found — AvantArt",
+      "notFoundDescription": "The requested artwork is unavailable. Continue exploring the catalogue of avant-garde pieces."
+    },
+    "about": {
+      "title": "About the artist — AvantArt",
+      "description": "Learn about the AvantArt artist, their manifesto, and the inspirations behind each collection.",
+      "keywords": "artist biography, avant-garde manifesto, art story"
+    },
+    "contact": {
+      "title": "Contact — AvantArt",
+      "description": "Reach out to the AvantArt studio for commissions, collaborations, or private viewings.",
+      "keywords": "contact artist, commission art, art studio contact"
+    },
+    "cart": {
+      "title": "Cart — AvantArt",
+      "description": "Review your selected artworks and confirm delivery details with AvantArt.",
+      "keywords": "art cart, reserve artwork, avant-garde purchase"
+    },
+    "dashboard": {
+      "title": "Collector dashboard — AvantArt",
+      "description": "Manage your AvantArt profile, orders, and conversations with the studio.",
+      "keywords": "collector dashboard, art orders, customer portal"
+    },
+    "orderHistory": {
+      "title": "Order history — AvantArt",
+      "description": "Track every AvantArt reservation and monitor fulfilment statuses.",
+      "keywords": "art order history, collector records, avant-garde purchases"
+    },
+    "adminOrders": {
+      "title": "Studio orders — AvantArt admin",
+      "description": "Oversee collector purchases, logistics, and statuses across the AvantArt studio.",
+      "keywords": "admin orders, art logistics, studio management"
+    },
+    "adminWorks": {
+      "title": "Manage artworks — AvantArt admin",
+      "description": "Create, edit, and curate artworks within the AvantArt catalogue.",
+      "keywords": "artwork management, admin catalogue, avant-garde works"
+    },
+    "adminChats": {
+      "title": "Studio conversations — AvantArt admin",
+      "description": "Respond to collector messages and manage the AvantArt studio inbox.",
+      "keywords": "collector chat, studio communications, admin inbox",
+      "restrictedTitle": "Restricted access — AvantArt",
+      "restrictedDescription": "Admin rights are required to access the AvantArt studio conversations."
+    },
+    "login": {
+      "title": "Sign in — AvantArt",
+      "description": "Access your AvantArt collector dashboard and continue the conversation with the studio.",
+      "keywords": "art login, collector sign in, avant-garde account"
+    },
+    "register": {
+      "title": "Create account — AvantArt",
+      "description": "Register to save favourites, manage orders, and receive AvantArt studio updates.",
+      "keywords": "register collector, join art studio, create art account"
+    },
+    "arView": {
+      "title": "Augmented reality viewer — AvantArt",
+      "description": "Launch the augmented reality experience for artwork {{id}} from the AvantArt studio.",
+      "keywords": "AR art, augmented reality viewer, AvantArt AR",
+      "loadingTitle": "Preparing AR experience — AvantArt",
+      "loadingDescription": "Loading augmented reality assets for artwork {{id}}.",
+      "errorTitle": "AR viewer unavailable — AvantArt",
+      "errorDescription": "We couldn't initialise the augmented reality viewer for artwork {{id}}."
     }
   }
 }

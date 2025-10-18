@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
+import Seo from "../components/Seo";
 
 const mapRegisterErrorToKey = (code) => {
   switch (code) {
@@ -107,6 +108,11 @@ function Register() {
 
   return (
     <section className="mx-auto w-full max-w-xl space-y-10">
+      <Seo
+        titleKey="seo.register.title"
+        descriptionKey="seo.register.description"
+        keywordsKey="seo.register.keywords"
+      />
       <header className="space-y-3">
         <p className="text-xs uppercase tracking-[0.45em] text-teal-400">{t("auth.register.tagline")}</p>
         <h1 className="text-3xl font-black uppercase tracking-[0.45em] text-slate-900 dark:text-white">

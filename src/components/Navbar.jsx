@@ -86,9 +86,10 @@ function Navbar() {
           to="/"
           onClick={handleNavigate}
           className="flex items-center gap-2 text-lg font-black uppercase tracking-[0.5em] text-slate-900 transition-colors hover:text-teal-500 dark:text-slate-100"
+          aria-label={t("navigation.brandAria")}
         >
           <span className="h-3 w-3 bg-gradient-to-br from-teal-400 via-fuchsia-500 to-amber-400 shadow-lg"></span>
-          AvantArt
+          {t("brand")}
         </NavLink>
         <nav className="hidden items-center gap-8 lg:flex">
           {navItems.map((item) => (
@@ -143,9 +144,9 @@ function Navbar() {
           type="button"
           onClick={handleToggleMenu}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/70 bg-white text-slate-800 transition hover:border-teal-400 hover:text-teal-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-teal-500 lg:hidden"
-          aria-label="Toggle navigation"
+          aria-label={t("navigation.toggle")}
         >
-          <span className="sr-only">Toggle navigation</span>
+          <span className="sr-only">{t("navigation.toggle")}</span>
           <div className="space-y-1.5">
             <span
               className={`block h-0.5 w-6 transform rounded-full bg-current transition duration-300 ${open ? "translate-y-1.5 rotate-45" : ""}`}

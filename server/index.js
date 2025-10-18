@@ -50,7 +50,7 @@ async function start() {
   try {
     await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
     app.listen(port, () => {
-      console.log(`API server listening on port ${port}`);
+      console.info(`API server listening on port ${port}`);
     });
   } catch (error) {
     console.error("Failed to start server", error);

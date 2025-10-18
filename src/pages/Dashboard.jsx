@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import ChatBox from "../components/ChatBox";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import Seo from "../components/Seo";
 
 function Dashboard() {
   const { t, i18n } = useTranslation();
@@ -75,6 +76,11 @@ function Dashboard() {
 
   return (
     <section className="space-y-10">
+      <Seo
+        titleKey="seo.dashboard.title"
+        descriptionKey="seo.dashboard.description"
+        keywordsKey="seo.dashboard.keywords"
+      />
       <header className="space-y-4">
         <p className="text-xs uppercase tracking-[0.45em] text-teal-400">{t("dashboardPage.tagline")}</p>
         <h1 className="text-3xl font-black uppercase tracking-[0.45em] text-slate-900 dark:text-white">{t("dashboard")}</h1>
