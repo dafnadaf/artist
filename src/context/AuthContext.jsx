@@ -13,17 +13,64 @@ import api from "../services/api";
 
 const AuthContext = createContext(null);
 
-const buildFallbackProfile = (user) => {
-  if (!user) {
+const DEFAULT_ROLE = "user";
+
+const normalizeRoles = (roles) => {
+  if (!roles) {
+    return [DEFAULT_ROLE];
+  }
+
+  const roleList = Array.isArray(roles) ? roles : [roles];
+  const normalized = roleList
+    .map((role) => String(role || "").trim().toLowerCase())
+    .filter(Boolean);
+
+  if (normalized.length === 0) {
+    return [DEFAULT_ROLE];
+  }
+
+  return Array.from(new Set(normalized));
+};
+
+const normalizeProfile = (profile, fallbackUser = null) => {
+  if (!profile && !fallbackUser) {
     return null;
   }
 
+  const baseProfile = profile ? { ...profile } : {};
+  const fallback = fallbackUser ?? {};
+  const roles = normalizeRoles(baseProfile.roles ?? baseProfile.role);
+  const primaryRole = roles.includes(baseProfile.role) ? baseProfile.role : roles[0];
+
   return {
-    uid: user.uid,
-    email: user.email,
-    name: user.displayName || "",
+    ...baseProfile,
+    uid: typeof baseProfile.uid === "string" && baseProfile.uid ? baseProfile.uid : fallback.uid ?? null,
+    email:
+      typeof baseProfile.email === "string" && baseProfile.email
+        ? baseProfile.email
+        : typeof fallback.email === "string"
+          ? fallback.email
+          : "",
+    name:
+      typeof baseProfile.name === "string" && baseProfile.name
+        ? baseProfile.name
+        : typeof fallback.displayName === "string" && fallback.displayName
+          ? fallback.displayName
+          : typeof fallback.email === "string"
+            ? fallback.email
+            : "",
+    avatarUrl:
+      typeof baseProfile.avatarUrl === "string" && baseProfile.avatarUrl
+        ? baseProfile.avatarUrl
+        : typeof fallback.photoURL === "string"
+          ? fallback.photoURL
+          : null,
+    roles,
+    role: primaryRole,
   };
 };
+
+const buildFallbackProfile = (user) => normalizeProfile(null, user);
 
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -34,8 +81,9 @@ function AuthProvider({ children }) {
     async (uid, fallbackUser = null) => {
       try {
         const response = await api.get(`/users/${uid}`);
-        setProfile(response.data);
-        return response.data;
+        const normalizedProfile = normalizeProfile(response.data, fallbackUser);
+        setProfile(normalizedProfile);
+        return normalizedProfile;
       } catch (error) {
         console.error("Failed to fetch profile", error);
         const fallbackProfile = fallbackUser ? buildFallbackProfile(fallbackUser) : null;
@@ -84,14 +132,16 @@ function AuthProvider({ children }) {
         uid: credentials.user.uid,
         email,
         name,
+        roles: [DEFAULT_ROLE],
       };
 
       try {
         const response = await api.post("/users", payload);
-        setProfile(response.data);
+        const normalizedProfile = normalizeProfile(response.data, credentials.user);
+        setProfile(normalizedProfile);
       } catch (error) {
         console.error("Failed to create profile", error);
-        setProfile(payload);
+        setProfile(normalizeProfile(payload, credentials.user));
       }
 
       setUser(credentials.user);

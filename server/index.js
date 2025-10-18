@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import morgan from "morgan";
 import ordersRouter from "./routes/orders.js";
+import usersRouter from "./routes/users.js";
 import worksRouter from "./routes/works.js";
 
 const app = express();
@@ -30,6 +31,7 @@ app.get("/api/health", (request, response) => {
 });
 
 app.use("/api/orders", ordersRouter);
+app.use("/api/users", usersRouter);
 app.use("/api/works", worksRouter);
 
 app.use((request, response) => {
