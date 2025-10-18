@@ -9,6 +9,7 @@ import {
   fetchWorks,
   updateWork,
 } from "../services/worksApi";
+import Seo from "../components/Seo";
 
 const DEFAULT_CATEGORIES = ["painting", "print", "sculpture", "digital", "installation", "mixedMedia"];
 
@@ -116,6 +117,11 @@ function AdminPanel() {
 
   return (
     <div className="flex flex-col gap-10">
+      <Seo
+        titleKey="seo.adminWorks.title"
+        descriptionKey="seo.adminWorks.description"
+        keywordsKey="seo.adminWorks.keywords"
+      />
       <header className="flex flex-col gap-4">
         <span className="text-xs font-semibold uppercase tracking-[0.4em] text-teal-400">
           {t("adminWorksPage.tagline")}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Filters from "../components/Filters";
 import WorkCard from "../components/WorkCard";
+import Seo from "../components/Seo";
 import worksData from "../data/works.json";
 import normalizeWork from "../utils/normalizeWork";
 import { fetchWorks } from "../services/worksApi";
@@ -140,6 +141,11 @@ function CatalogPage() {
 
   return (
     <div className="flex flex-col gap-12">
+      <Seo
+        titleKey="seo.catalog.title"
+        descriptionKey="seo.catalog.description"
+        keywordsKey="seo.catalog.keywords"
+      />
       <header className="flex flex-col gap-4">
         <span className="text-xs font-semibold uppercase tracking-[0.4em] text-teal-400">
           {t("catalogPage.tagline")}

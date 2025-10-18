@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import AdminOrderList from "../components/AdminOrderList";
 import api from "../services/api";
+import Seo from "../components/Seo";
 
 function AdminOrders() {
   const { t, i18n } = useTranslation();
@@ -40,6 +41,11 @@ function AdminOrders() {
 
   return (
     <section className="space-y-10">
+      <Seo
+        titleKey="seo.adminOrders.title"
+        descriptionKey="seo.adminOrders.description"
+        keywordsKey="seo.adminOrders.keywords"
+      />
       <header className="space-y-4">
         <p className="text-xs uppercase tracking-[0.4em] text-fuchsia-400">{t("orders.admin.tagline")}</p>
         <h1 className="text-3xl font-black uppercase tracking-[0.35em] text-slate-900 dark:text-slate-100">

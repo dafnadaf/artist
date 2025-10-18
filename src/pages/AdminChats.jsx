@@ -4,6 +4,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import ChatBox from "../components/ChatBox";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../services/firebase";
+import Seo from "../components/Seo";
 
 function AdminChats() {
   const { t } = useTranslation();
@@ -73,6 +74,11 @@ function AdminChats() {
   if (!isAdmin) {
     return (
       <section className="space-y-6">
+        <Seo
+          titleKey="seo.adminChats.restrictedTitle"
+          descriptionKey="seo.adminChats.restrictedDescription"
+          keywordsKey="seo.adminChats.keywords"
+        />
         <header className="space-y-3">
           <p className="text-xs uppercase tracking-[0.45em] text-teal-400">{t("chat.admin.title")}</p>
           <h1 className="text-3xl font-black uppercase tracking-[0.45em] text-slate-900 dark:text-white">{t("chat.admin.accessDeniedHeading")}</h1>
@@ -84,6 +90,11 @@ function AdminChats() {
 
   return (
     <section className="space-y-10">
+      <Seo
+        titleKey="seo.adminChats.title"
+        descriptionKey="seo.adminChats.description"
+        keywordsKey="seo.adminChats.keywords"
+      />
       <header className="space-y-4">
         <p className="text-xs uppercase tracking-[0.45em] text-teal-400">{t("chat.admin.title")}</p>
         <h1 className="text-3xl font-black uppercase tracking-[0.45em] text-slate-900 dark:text-white">{t("chat.admin.heading")}</h1>

@@ -5,6 +5,7 @@ import works from "../data/works.json";
 import { useCart } from "../context/CartContext";
 import normalizeWork from "../utils/normalizeWork";
 import { fetchWorkById } from "../services/worksApi";
+import Seo from "../components/Seo";
 
 const fallbackWorks = works.map((item) => normalizeWork(item));
 
@@ -116,33 +117,47 @@ function WorkDetails() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-xs uppercase tracking-[0.35em] text-slate-600 dark:text-slate-400">
-          {t("auth.common.loading")}
-        </p>
-      </div>
+      <>
+        <Seo
+          titleKey="seo.work.loadingTitle"
+          descriptionKey="seo.work.loadingDescription"
+          keywordsKey="seo.work.keywords"
+        />
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <p className="text-xs uppercase tracking-[0.35em] text-slate-600 dark:text-slate-400">
+            {t("auth.common.loading")}
+          </p>
+        </div>
+      </>
     );
   }
 
   if (notFound || !work) {
     return (
-      <div className="mx-auto flex max-w-2xl flex-col gap-6 text-center text-slate-700 dark:text-slate-200">
-        <span className="text-xs font-semibold uppercase tracking-[0.4em] text-teal-400">
-          {t("workDetails.notFoundTagline")}
-        </span>
-        <h1 className="text-4xl font-black uppercase tracking-[0.25em] text-slate-900 dark:text-slate-100">
-          {t("workDetails.notFoundTitle")}
-        </h1>
-        <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
-          {t("workDetails.notFoundDescription")}
-        </p>
-        <Link
-          to="/catalog"
-          className="mx-auto inline-flex items-center gap-3 rounded-full border border-teal-400/40 bg-white/70 px-6 py-3 text-xs font-semibold uppercase tracking-[0.4em] text-slate-900 transition hover:border-teal-400 hover:bg-teal-400/20 dark:border-teal-400/40 dark:bg-slate-900/80 dark:text-slate-100"
-        >
-          {t("workDetails.backToCatalog")}
-        </Link>
-      </div>
+      <>
+        <Seo
+          titleKey="seo.work.notFoundTitle"
+          descriptionKey="seo.work.notFoundDescription"
+          keywordsKey="seo.work.keywords"
+        />
+        <div className="mx-auto flex max-w-2xl flex-col gap-6 text-center text-slate-700 dark:text-slate-200">
+          <span className="text-xs font-semibold uppercase tracking-[0.4em] text-teal-400">
+            {t("workDetails.notFoundTagline")}
+          </span>
+          <h1 className="text-4xl font-black uppercase tracking-[0.25em] text-slate-900 dark:text-slate-100">
+            {t("workDetails.notFoundTitle")}
+          </h1>
+          <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
+            {t("workDetails.notFoundDescription")}
+          </p>
+          <Link
+            to="/catalog"
+            className="mx-auto inline-flex items-center gap-3 rounded-full border border-teal-400/40 bg-white/70 px-6 py-3 text-xs font-semibold uppercase tracking-[0.4em] text-slate-900 transition hover:border-teal-400 hover:bg-teal-400/20 dark:border-teal-400/40 dark:bg-slate-900/80 dark:text-slate-100"
+          >
+            {t("workDetails.backToCatalog")}
+          </Link>
+        </div>
+      </>
     );
   }
 
@@ -155,6 +170,13 @@ function WorkDetails() {
 
   return (
     <div className="grid gap-12 lg:grid-cols-[7fr_5fr]">
+      <Seo
+        titleKey="seo.work.title"
+        descriptionKey="seo.work.description"
+        keywordsKey="seo.work.keywords"
+        translationValues={{ title, year: work.year, category: t(`catalogPage.categories.${work.category}`) }}
+        image={image}
+      />
       <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white/50 shadow-2xl dark:border-slate-800/60 dark:bg-slate-900/60">
         <img
           src={image}

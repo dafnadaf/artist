@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import CatalogPage from "./pages/CatalogPage";
@@ -41,6 +42,7 @@ function App() {
   const [theme, setTheme] = useState(getInitialTheme);
   const location = useLocation();
   const isArRoute = location.pathname.startsWith("/ar-view");
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -64,6 +66,15 @@ function App() {
 
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const lang = i18n.resolvedLanguage || i18n.language || "en";
+    document.documentElement.setAttribute("lang", lang);
+  }, [i18n.language, i18n.resolvedLanguage]);
 
   const contextValue = useMemo(
     () => ({
