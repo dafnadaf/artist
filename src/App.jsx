@@ -16,6 +16,8 @@ import CartPage from "./pages/CartPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ArView from "./pages/ArView";
+import NotFound from "./pages/NotFound";
+import ServerError from "./pages/ServerError";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ThemeContext from "./context/ThemeContext";
 import { CartProvider } from "./context/CartContext";
@@ -152,7 +154,8 @@ function App() {
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  <Route path="*" element={<Home />} />
+                  <Route path="/500" element={<ServerError />} />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
             </div>

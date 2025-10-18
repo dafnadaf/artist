@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import works from "../data/works.json";
 import { useCart } from "../context/CartContext";
-import normalizeWork from "../utils/normalizeWork";
 import { fetchWorkById } from "../services/worksApi";
 import Seo from "../components/Seo";
-
-const fallbackWorks = works.map((item) => normalizeWork(item));
+import PageLoader from "../components/PageLoader";
+import axios from "axios";
 
 function WorkDetails() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
   const { addItem } = useCart();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [added, setAdded] = useState(false);
   const [work, setWork] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,10 +46,17 @@ function WorkDetails() {
         if (!active) {
           return;
         }
-        const fallback = fallbackWorks.find((item) => item.id === String(id));
-        if (fallback) {
-          setWork(fallback);
-          setNotFound(false);
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 404) {
+            setWork(null);
+            setNotFound(true);
+          } else if (error.response?.status && error.response.status >= 500) {
+            navigate("/500", { state: { from: location.pathname } });
+            return;
+          } else {
+            setWork(null);
+            setNotFound(true);
+          }
         } else {
           setWork(null);
           setNotFound(true);
@@ -66,15 +73,11 @@ function WorkDetails() {
     return () => {
       active = false;
     };
-  }, [id]);
+  }, [id, navigate, location.pathname]);
 
   const title = useMemo(() => {
     if (!work) {
       return "";
-    }
-
-    if (typeof work.title === "string") {
-      return work.title;
     }
 
     return work.title?.[i18n.language] ?? work.title?.en ?? work.title?.ru ?? "";
@@ -83,10 +86,6 @@ function WorkDetails() {
   const description = useMemo(() => {
     if (!work) {
       return "";
-    }
-
-    if (typeof work.description === "string") {
-      return work.description;
     }
 
     return work.description?.[i18n.language] ?? work.description?.en ?? work.description?.ru ?? "";
@@ -123,11 +122,7 @@ function WorkDetails() {
           descriptionKey="seo.work.loadingDescription"
           keywordsKey="seo.work.keywords"
         />
-        <div className="flex min-h-[40vh] items-center justify-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-600 dark:text-slate-400">
-            {t("auth.common.loading")}
-          </p>
-        </div>
+        <PageLoader />
       </>
     );
   }

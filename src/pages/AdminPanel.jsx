@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import AdminWorkList from "../components/AdminWorkList";
 import WorkForm from "../components/WorkForm";
 import normalizeWork from "../utils/normalizeWork";
@@ -10,11 +12,14 @@ import {
   updateWork,
 } from "../services/worksApi";
 import Seo from "../components/Seo";
+import PageLoader from "../components/PageLoader";
 
 const DEFAULT_CATEGORIES = ["painting", "print", "sculpture", "digital", "installation", "mixedMedia"];
 
 function AdminPanel() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [works, setWorks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,11 +36,15 @@ function AdminPanel() {
       setWorks(data);
     } catch (loadError) {
       console.error("Failed to load works", loadError);
+      if (axios.isAxiosError(loadError) && loadError.response?.status >= 500) {
+        navigate("/500", { state: { from: location.pathname } });
+        return;
+      }
       setError(t("adminWorksPage.errors.load"));
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, navigate, location.pathname]);
 
   useEffect(() => {
     loadWorks();
@@ -87,7 +96,11 @@ function AdminPanel() {
       setSelectedWork(null);
     } catch (submitError) {
       console.error("Failed to submit work", submitError);
-      showFeedback("error", t("adminWorksPage.notifications.error"));
+      if (axios.isAxiosError(submitError) && submitError.response?.status >= 500) {
+        navigate("/500", { state: { from: location.pathname } });
+      } else {
+        showFeedback("error", t("adminWorksPage.notifications.error"));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -106,7 +119,11 @@ function AdminPanel() {
       showFeedback("success", t("adminWorksPage.notifications.deleteSuccess"));
     } catch (deleteError) {
       console.error("Failed to delete work", deleteError);
-      showFeedback("error", t("adminWorksPage.notifications.error"));
+      if (axios.isAxiosError(deleteError) && deleteError.response?.status >= 500) {
+        navigate("/500", { state: { from: location.pathname } });
+      } else {
+        showFeedback("error", t("adminWorksPage.notifications.error"));
+      }
     }
   };
 
@@ -163,13 +180,7 @@ function AdminPanel() {
         </div>
       ) : null}
 
-      {loading ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
-            {t("adminWorksPage.loading")}
-          </p>
-        </div>
-      ) : null}
+      {loading ? <PageLoader labelKey="adminWorksPage.loading" /> : null}
 
       {!loading && mode === "list" ? (
         <AdminWorkList works={works} onEdit={handleEdit} onDelete={handleDelete} />

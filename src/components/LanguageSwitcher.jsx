@@ -1,9 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-const languages = [
-  { code: "ru", label: "Рус" },
-  { code: "en", label: "En" },
-];
+const languages = ["ru", "en"];
 
 function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
@@ -21,9 +18,9 @@ function LanguageSwitcher() {
         value={i18n.resolvedLanguage}
         onChange={handleChange}
       >
-        {languages.map((lang) => (
-          <option key={lang.code} value={lang.code} className="text-slate-800 dark:text-slate-100">
-            {lang.label}
+        {languages.map((code) => (
+          <option key={code} value={code} className="text-slate-800 dark:text-slate-100">
+            {t(`languageSwitcher.options.${code}`)}
           </option>
         ))}
       </select>

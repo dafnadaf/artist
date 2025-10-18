@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Filters from "../components/Filters";
 import WorkCard from "../components/WorkCard";
 import Seo from "../components/Seo";
-import worksData from "../data/works.json";
-import normalizeWork from "../utils/normalizeWork";
 import { fetchWorks } from "../services/worksApi";
-
-const fallbackWorks = worksData.map((work) => normalizeWork(work));
+import PageLoader from "../components/PageLoader";
 
 function CatalogPage() {
   const { t } = useTranslation();
-  const [works, setWorks] = useState(fallbackWorks);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [works, setWorks] = useState([]);
   const [filters, setFilters] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,13 +29,19 @@ function CatalogPage() {
         if (!active) {
           return;
         }
-        setWorks(data.length > 0 ? data : fallbackWorks);
+        setWorks(data);
       } catch (loadError) {
         console.error("Failed to load works", loadError);
         if (!active) {
           return;
         }
-        setWorks(fallbackWorks);
+
+        if (axios.isAxiosError(loadError) && loadError.response?.status >= 500) {
+          navigate("/500", { state: { from: location.pathname } });
+          return;
+        }
+
+        setWorks([]);
         setError(t("catalogPage.loadError"));
       } finally {
         if (active) {
@@ -48,7 +55,7 @@ function CatalogPage() {
     return () => {
       active = false;
     };
-  }, [t]);
+  }, [t, navigate, location.pathname]);
 
   const categories = useMemo(() => Array.from(new Set(works.map((work) => work.category).filter(Boolean))), [works]);
   const sizes = useMemo(() => Array.from(new Set(works.map((work) => work.dimensions).filter(Boolean))), [works]);
@@ -164,6 +171,12 @@ function CatalogPage() {
         </div>
       ) : null}
 
+      {!loading && works.length === 0 ? (
+        <p className="text-center text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+          {t("catalogPage.noResults")}
+        </p>
+      ) : null}
+
       {filters ? (
         <Filters
           filters={filters}
@@ -177,13 +190,7 @@ function CatalogPage() {
         />
       ) : null}
 
-      {loading && !filters ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
-            {t("auth.common.loading")}
-          </p>
-        </div>
-      ) : null}
+      {loading ? <PageLoader /> : null}
 
       {!loading && filteredWorks.length > 0 ? (
         <section className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
@@ -193,10 +200,10 @@ function CatalogPage() {
         </section>
       ) : null}
 
-      {!loading && filteredWorks.length === 0 ? (
+      {!loading && works.length > 0 && filteredWorks.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300/60 bg-white/50 p-12 text-center shadow-inner dark:border-slate-700/60 dark:bg-slate-900/40">
           <p className="text-lg font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
-            {t("catalogPage.noResults")}
+            {t("catalogPage.noMatches")}
           </p>
         </div>
       ) : null}

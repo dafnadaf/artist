@@ -12,12 +12,19 @@
   "language": "Language",
   "darkMode": "Dark Mode",
   "lightMode": "Light Mode",
+  "languageSwitcher": {
+    "options": {
+      "ru": "Russian",
+      "en": "English"
+    }
+  },
   "catalogPage": {
     "tagline": "Avant-garde selection",
     "title": "Curated Works",
     "description": "Immerse yourself in a spectrum of experimental art pieces. Refine the collection with intuitive filters to discover the work that resonates with your interior and sensibility.",
-    "loadError": "We couldn't load the live catalogue. Displaying studio preview data.",
-    "noResults": "No works match the selected filters",
+    "loadError": "We couldn't load the catalogue.",
+    "noResults": "No works are available right now",
+    "noMatches": "No works match the selected filters",
     "filters": {
       "heading": "Refine selection",
       "category": "Category",
@@ -57,6 +64,24 @@
     "addedConfirmation": "Added to cart",
     "descriptionHeading": "Artist statement"
   },
+  "notFoundPage": {
+    "tagline": "Page not found",
+    "title": "The page dissolved into abstraction",
+    "description": "The address you entered doesn't exist or has been moved. Continue exploring the avant-garde universe from the links below.",
+    "actions": {
+      "home": "Return home",
+      "catalog": "Browse works"
+    }
+  },
+  "serverErrorPage": {
+    "tagline": "Studio glitch",
+    "title": "Something broke behind the scenes",
+    "description": "Our studio systems hit an unexpected error. Try the previous page again or contact us so we can resolve it quickly.",
+    "actions": {
+      "retry": "Try again",
+      "contact": "Contact the studio"
+    }
+  },
   "cartPage": {
     "tagline": "Collector's suite",
     "title": "Your cart",
@@ -77,12 +102,16 @@
       "authRequired": "Sign in to finalize your order",
       "submit": "We couldn't submit the order. Please try again.",
       "noItems": "Add at least one artwork before placing an order.",
-      "addressRequired": "Enter a delivery address."
+      "addressRequired": "Enter a delivery address.",
+      "permission": "You do not have permission to place this order."
     },
     "shippingOptions": {
       "standard": "Standard (domestic)",
       "express": "Express courier",
-      "international": "International"
+      "international": "International",
+      "pickup": "Studio pickup",
+      "courier": "Local courier",
+      "mail": "Postal delivery"
     },
     "summary": {
       "items": "Artworks",
@@ -428,6 +457,16 @@
       "loadingDescription": "Loading augmented reality assets for artwork {{id}}.",
       "errorTitle": "AR viewer unavailable — AvantArt",
       "errorDescription": "We couldn't initialise the augmented reality viewer for artwork {{id}}."
+    },
+    "notFound": {
+      "title": "404 — AvantArt",
+      "description": "The requested page could not be found within the AvantArt experience.",
+      "keywords": "404 page, page not found, AvantArt"
+    },
+    "serverError": {
+      "title": "Server error — AvantArt",
+      "description": "An internal error occurred while serving the AvantArt experience.",
+      "keywords": "500 error, server error, AvantArt"
     }
   }
 }

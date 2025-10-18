@@ -1,11 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import AdminOrderList from "../components/AdminOrderList";
-import api from "../services/api";
+import { fetchOrders } from "../services/ordersApi";
 import Seo from "../components/Seo";
+import PageLoader from "../components/PageLoader";
 
 function AdminOrders() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -25,15 +30,19 @@ function AdminOrders() {
     setError(false);
 
     try {
-      const response = await api.get("/orders");
-      setOrders(Array.isArray(response.data) ? response.data : []);
+      const allOrders = await fetchOrders();
+      setOrders(allOrders);
     } catch (loadError) {
       console.error("Failed to fetch admin orders", loadError);
+      if (axios.isAxiosError(loadError) && loadError.response?.status >= 500) {
+        navigate("/500", { state: { from: location.pathname } });
+        return;
+      }
       setError(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [navigate, location.pathname]);
 
   useEffect(() => {
     loadOrders();
@@ -57,11 +66,7 @@ function AdminOrders() {
       </header>
 
       {loading ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
-            {t("orders.admin.loading")}
-          </p>
-        </div>
+        <PageLoader labelKey="orders.admin.loading" />
       ) : error ? (
         <div className="rounded-3xl border border-rose-400/40 bg-rose-400/10 p-8 text-center text-xs font-semibold uppercase tracking-[0.35em] text-rose-400 dark:border-rose-500/30 dark:bg-rose-500/10">
           {t("orders.admin.error")}

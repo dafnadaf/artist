@@ -1,6 +1,9 @@
 /* eslint-env node */
 import express from "express";
+import { body, param } from "express-validator";
 import Work from "../models/Work.js";
+import { checkRole, verifyToken } from "../middleware/auth.js";
+import validateRequest from "../middleware/validateRequest.js";
 
 const router = express.Router();
 
@@ -57,6 +60,22 @@ const sanitizeWorkPayload = (payload) => {
   };
 };
 
+const workValidations = [
+  body("title").isObject().withMessage("Title must include translations"),
+  body("title.en").isString().trim().notEmpty().withMessage("English title is required"),
+  body("title.ru").isString().trim().notEmpty().withMessage("Russian title is required"),
+  body("description").isObject().withMessage("Description must include translations"),
+  body("description.en").isString().trim().notEmpty().withMessage("English description is required"),
+  body("description.ru").isString().trim().notEmpty().withMessage("Russian description is required"),
+  body("imageUrl").isString().trim().isLength({ min: 1 }).withMessage("Image URL is required"),
+  body("year").isInt({ min: 0 }).withMessage("Year must be a positive number"),
+  body("dimensions").isString().trim().notEmpty().withMessage("Dimensions are required"),
+  body("price").isFloat({ min: 0 }).withMessage("Price must be a number"),
+  body("category").isString().trim().notEmpty().withMessage("Category is required"),
+];
+
+const workIdValidation = [param("id").isMongoId().withMessage("Invalid work id")];
+
 router.get("/", async (_request, response, next) => {
   try {
     const works = await Work.find().sort({ createdAt: -1 }).lean();
@@ -66,7 +85,7 @@ router.get("/", async (_request, response, next) => {
   }
 });
 
-router.get("/:id", async (request, response, next) => {
+router.get("/:id", workIdValidation, validateRequest, async (request, response, next) => {
   try {
     const work = await Work.findById(request.params.id).lean();
 
@@ -81,18 +100,31 @@ router.get("/:id", async (request, response, next) => {
   }
 });
 
-router.post("/", async (request, response, next) => {
-  try {
+router.post(
+  "/",
+  verifyToken,
+  checkRole("admin"),
+  workValidations,
+  validateRequest,
+  async (request, response, next) => {
+    try {
     const data = sanitizeWorkPayload(request.body ?? {});
     const created = await Work.create(data);
     response.status(201).json(created.toObject());
   } catch (error) {
     next(error);
   }
-});
+  },
+);
 
-router.put("/:id", async (request, response, next) => {
-  try {
+router.put(
+  "/:id",
+  verifyToken,
+  checkRole("admin"),
+  [...workIdValidation, ...workValidations],
+  validateRequest,
+  async (request, response, next) => {
+    try {
     const data = sanitizeWorkPayload(request.body ?? {});
 
     const updated = await Work.findByIdAndUpdate(request.params.id, data, {
@@ -109,10 +141,17 @@ router.put("/:id", async (request, response, next) => {
   } catch (error) {
     next(error);
   }
-});
+  },
+);
 
-router.delete("/:id", async (request, response, next) => {
-  try {
+router.delete(
+  "/:id",
+  verifyToken,
+  checkRole("admin"),
+  workIdValidation,
+  validateRequest,
+  async (request, response, next) => {
+    try {
     const deleted = await Work.findByIdAndDelete(request.params.id).lean();
 
     if (!deleted) {
@@ -124,6 +163,7 @@ router.delete("/:id", async (request, response, next) => {
   } catch (error) {
     next(error);
   }
-});
+  },
+);
 
 export default router;
