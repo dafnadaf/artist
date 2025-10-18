@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import CatalogPage from "./pages/CatalogPage";
@@ -14,6 +14,7 @@ import WorkDetails from "./pages/WorkDetails";
 import CartPage from "./pages/CartPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ArView from "./pages/ArView";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ThemeContext from "./context/ThemeContext";
 import { CartProvider } from "./context/CartContext";
@@ -38,6 +39,8 @@ const getInitialTheme = () => {
 
 function App() {
   const [theme, setTheme] = useState(getInitialTheme);
+  const location = useLocation();
+  const isArRoute = location.pathname.startsWith("/ar-view");
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -75,67 +78,74 @@ function App() {
     <ThemeContext.Provider value={contextValue}>
       <AuthProvider>
         <CartProvider>
-          <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-900 transition-colors duration-500 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
-            <Navbar />
-            <main className="mx-auto w-full max-w-6xl px-6 py-12">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/catalog" element={<CatalogPage />} />
-                <Route path="/catalog/:id" element={<WorkDetails />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route
-                  path="/dashboard"
-                  element=
-                    {
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                />
-                <Route
-                  path="/dashboard/orders"
-                  element=
-                    {
-                      <ProtectedRoute>
-                        <OrderHistory />
-                      </ProtectedRoute>
-                    }
-                />
-                <Route
-                  path="/admin/chats"
-                  element=
-                    {
-                      <ProtectedRoute requireAdmin>
-                        <AdminChats />
-                      </ProtectedRoute>
-                    }
-                />
-                <Route
-                  path="/admin/orders"
-                  element=
-                    {
-                      <ProtectedRoute requireAdmin>
-                        <AdminOrders />
-                      </ProtectedRoute>
-                    }
-                />
-                <Route
-                  path="/admin/works"
-                  element=
-                    {
-                      <ProtectedRoute requireAdmin>
-                        <AdminPanel />
-                      </ProtectedRoute>
-                    }
-                />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="*" element={<Home />} />
-              </Routes>
-            </main>
-          </div>
+          {isArRoute ? (
+            <Routes>
+              <Route path="/ar-view/:id" element={<ArView />} />
+              <Route path="*" element={<ArView />} />
+            </Routes>
+          ) : (
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-900 transition-colors duration-500 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
+              <Navbar />
+              <main className="mx-auto w-full max-w-6xl px-6 py-12">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/catalog" element={<CatalogPage />} />
+                  <Route path="/catalog/:id" element={<WorkDetails />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route
+                    path="/dashboard"
+                    element=
+                      {
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                  />
+                  <Route
+                    path="/dashboard/orders"
+                    element=
+                      {
+                        <ProtectedRoute>
+                          <OrderHistory />
+                        </ProtectedRoute>
+                      }
+                  />
+                  <Route
+                    path="/admin/chats"
+                    element=
+                      {
+                        <ProtectedRoute requireAdmin>
+                          <AdminChats />
+                        </ProtectedRoute>
+                      }
+                  />
+                  <Route
+                    path="/admin/orders"
+                    element=
+                      {
+                        <ProtectedRoute requireAdmin>
+                          <AdminOrders />
+                        </ProtectedRoute>
+                      }
+                  />
+                  <Route
+                    path="/admin/works"
+                    element=
+                      {
+                        <ProtectedRoute requireAdmin>
+                          <AdminPanel />
+                        </ProtectedRoute>
+                      }
+                  />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="*" element={<Home />} />
+                </Routes>
+              </main>
+            </div>
+          )}
         </CartProvider>
       </AuthProvider>
     </ThemeContext.Provider>
