@@ -1,0 +1,26 @@
+{
+  "name": "AvantArt Studio",
+  "short_name": "AvantArt",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "description": "Discover immersive avant-garde artworks, curated collections, and bespoke commissions from the AvantArt studio.",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3a8.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/128x128/1f3a8.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/512x512/1f3a8.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

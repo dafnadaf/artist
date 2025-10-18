@@ -79,6 +79,7 @@ const workIdValidation = [param("id").isMongoId().withMessage("Invalid work id")
 router.get("/", async (_request, response, next) => {
   try {
     const works = await Work.find().sort({ createdAt: -1 }).lean();
+    response.set("Cache-Control", "public, max-age=300, stale-while-revalidate=900");
     response.json(works);
   } catch (error) {
     next(error);
@@ -94,6 +95,7 @@ router.get("/:id", workIdValidation, validateRequest, async (request, response, 
       return;
     }
 
+    response.set("Cache-Control", "public, max-age=300, stale-while-revalidate=900");
     response.json(work);
   } catch (error) {
     next(error);

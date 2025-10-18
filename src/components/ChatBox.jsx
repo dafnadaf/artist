@@ -14,6 +14,8 @@ import {
 import { db } from "../services/firebase";
 import ChatMessage from "./ChatMessage";
 
+const MESSAGE_RATE_LIMIT_MS = 2000;
+
 function ChatBox({ chatId, senderRole }) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState([]);
@@ -22,6 +24,7 @@ function ChatBox({ chatId, senderRole }) {
   const [sending, setSending] = useState(false);
   const [errorKey, setErrorKey] = useState(null);
   const endRef = useRef(null);
+  const lastSentAtRef = useRef(0);
 
   useEffect(() => {
     if (!chatId) {
@@ -105,6 +108,13 @@ function ChatBox({ chatId, senderRole }) {
       return;
     }
 
+    const now = Date.now();
+
+    if (now - lastSentAtRef.current < MESSAGE_RATE_LIMIT_MS) {
+      setErrorKey("rateLimit");
+      return;
+    }
+
     try {
       setSending(true);
       setErrorKey(null);
@@ -125,6 +135,7 @@ function ChatBox({ chatId, senderRole }) {
       );
 
       setInputValue("");
+      lastSentAtRef.current = now;
     } catch (error) {
       console.error("Failed to send message", error);
       setErrorKey("send");
@@ -136,7 +147,12 @@ function ChatBox({ chatId, senderRole }) {
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex-1 space-y-3 overflow-y-auto rounded-3xl border border-slate-200/70 bg-white/60 p-6 shadow-inner dark:border-slate-800/70 dark:bg-slate-900/60">
-        {hasMessages ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-12 text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-teal-300 border-t-transparent" aria-hidden="true" />
+            <span>{t("chat.loading")}</span>
+          </div>
+        ) : hasMessages ? (
           messages.map((message) => (
             <ChatMessage
               key={message.id}

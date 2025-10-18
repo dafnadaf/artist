@@ -1,10 +1,22 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { body, param } from "express-validator";
 import Order from "../models/Order.js";
 import { checkRole, requireSelfOrRole, verifyToken } from "../middleware/auth.js";
 import validateRequest from "../middleware/validateRequest.js";
 
 const router = Router();
+
+const createOrderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (request) => request.user?.uid || request.ip,
+  handler: (_request, response) => {
+    response.status(429).json({ message: "Too many orders in a short period" });
+  },
+});
 
 const isPlainObject = (value) => value && typeof value === "object" && !Array.isArray(value);
 const hasUnsafeKeys = (value) => Object.keys(value || {}).some((key) => key.startsWith("$") || key.includes("."));
@@ -105,6 +117,7 @@ const userIdParamValidation = [
 router.post(
   "/",
   verifyToken,
+  createOrderLimiter,
   createOrderValidations,
   validateRequest,
   requireSelfOrRole((request) => request.body.userId, "admin"),

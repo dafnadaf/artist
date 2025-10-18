@@ -212,6 +212,18 @@
       "error": "We couldn't complete the action"
     }
   },
+  "footer": {
+    "crafted": "Curated directly from the AvantArt atelier",
+    "artist": "Alexei Voronov",
+    "signature": "Avant-garde artist & creative director",
+    "follow": "Follow the studio",
+    "rights": "© {{year}} AvantArt Studio. All rights reserved.",
+    "social": {
+      "instagram": "AvantArt on Instagram",
+      "behance": "AvantArt on Behance",
+      "dribbble": "AvantArt on Dribbble"
+    }
+  },
   "auth": {
     "common": {
       "email": "Email",
@@ -251,6 +263,7 @@
       "emailInUse": "This email is already registered",
       "passwordLength": "Password must be at least 6 characters",
       "passwordMismatch": "Passwords do not match",
+      "invalidEmail": "Enter a valid email",
       "unauthorized": "You do not have permission to view this section"
     }
   },
@@ -264,7 +277,8 @@
     "errors": {
       "subscription": "We couldn't load this conversation.",
       "send": "Unable to send message. Try again.",
-      "list": "Unable to load chat list."
+      "list": "Unable to load chat list.",
+      "rateLimit": "Please wait a moment before sending another message."
     },
     "roles": {
       "user": "Collector",

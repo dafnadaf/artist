@@ -2,6 +2,12 @@ import PropTypes from "prop-types";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { motion as Motion } from "framer-motion";
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0 },
+};
 
 function WorkCard({ work }) {
   const { t, i18n } = useTranslation();
@@ -26,7 +32,14 @@ function WorkCard({ work }) {
   const image = work.image ?? work.imageUrl ?? "";
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200/40 bg-white/70 shadow-xl transition-transform duration-300 hover:-translate-y-1 hover:border-teal-400/60 hover:shadow-2xl dark:border-slate-800/40 dark:bg-slate-900/60">
+    <Motion.article
+      className="overflow-hidden rounded-2xl border border-slate-200/40 bg-white/70 shadow-xl transition-transform duration-300 hover:-translate-y-1 hover:border-teal-400/60 hover:shadow-2xl dark:border-slate-800/40 dark:bg-slate-900/60"
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
       <Link to={`/catalog/${work.id}`} className="group flex h-full flex-col">
         <div className="relative h-64 overflow-hidden">
           <img
@@ -66,7 +79,7 @@ function WorkCard({ work }) {
           </div>
         </div>
       </Link>
-    </article>
+    </Motion.article>
   );
 }
 

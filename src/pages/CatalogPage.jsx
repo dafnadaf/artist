@@ -2,11 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { motion as Motion } from "framer-motion";
 import Filters from "../components/Filters";
 import WorkCard from "../components/WorkCard";
 import Seo from "../components/Seo";
 import { fetchWorks } from "../services/worksApi";
 import PageLoader from "../components/PageLoader";
+
+const gridVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
 
 function CatalogPage() {
   const { t } = useTranslation();
@@ -153,7 +163,12 @@ function CatalogPage() {
         descriptionKey="seo.catalog.description"
         keywordsKey="seo.catalog.keywords"
       />
-      <header className="flex flex-col gap-4">
+      <Motion.header
+        className="flex flex-col gap-4"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
         <span className="text-xs font-semibold uppercase tracking-[0.4em] text-teal-400">
           {t("catalogPage.tagline")}
         </span>
@@ -163,7 +178,7 @@ function CatalogPage() {
         <p className="max-w-3xl text-base leading-relaxed text-slate-600 dark:text-slate-300">
           {t("catalogPage.description")}
         </p>
-      </header>
+      </Motion.header>
 
       {error ? (
         <div className="rounded-2xl border border-amber-400/60 bg-amber-400/10 p-4 text-xs font-semibold uppercase tracking-[0.3em] text-amber-500">
@@ -193,11 +208,16 @@ function CatalogPage() {
       {loading ? <PageLoader /> : null}
 
       {!loading && filteredWorks.length > 0 ? (
-        <section className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+        <Motion.section
+          className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3"
+          variants={gridVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {filteredWorks.map((work) => (
             <WorkCard key={work.id} work={work} />
           ))}
-        </section>
+        </Motion.section>
       ) : null}
 
       {!loading && works.length > 0 && filteredWorks.length === 0 ? (
