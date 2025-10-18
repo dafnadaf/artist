@@ -5,7 +5,7 @@ import CartItem from "../components/CartItem";
 import OrderSummary from "../components/OrderSummary";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
+import { createOrder } from "../services/ordersApi";
 import Seo from "../components/Seo";
 
 const SHIPPING_OPTIONS = [
@@ -19,16 +19,41 @@ const mapOrderErrorToKey = (message) => {
     return "cartPage.errors.submit";
   }
 
-  switch (message) {
-    case "userId is required":
-      return "cartPage.errors.authRequired";
-    case "At least one item is required":
-      return "cartPage.errors.noItems";
-    case "Delivery address is required":
-      return "cartPage.errors.addressRequired";
-    default:
-      return "cartPage.errors.submit";
+  const normalized = message.toLowerCase();
+
+  if (message === "userId is required") {
+    return "cartPage.errors.authRequired";
   }
+
+  if (message === "At least one item is required") {
+    return "cartPage.errors.noItems";
+  }
+
+  if (message === "Delivery address is required") {
+    return "cartPage.errors.addressRequired";
+  }
+
+  if (normalized.includes("authentication")) {
+    return "cartPage.errors.authRequired";
+  }
+
+  if (normalized.includes("permission")) {
+    return "cartPage.errors.permission";
+  }
+
+  if (normalized.includes("userid")) {
+    return "cartPage.errors.authRequired";
+  }
+
+  if (normalized.includes("address") && normalized.includes("required")) {
+    return "cartPage.errors.addressRequired";
+  }
+
+  if (normalized.includes("at least one item") || normalized.includes("items is required")) {
+    return "cartPage.errors.noItems";
+  }
+
+  return "cartPage.errors.submit";
 };
 
 function CartPage() {
@@ -132,8 +157,8 @@ function CartPage() {
     };
 
     try {
-      const response = await api.post("/orders", payload);
-      setOrderResult(response.data);
+      const order = await createOrder(payload);
+      setOrderResult(order);
       setCustomerSnapshot(payload.customer);
       clear();
       setFormValues({

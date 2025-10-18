@@ -1,13 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import OrderCard from "../components/OrderCard";
 import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
+import { fetchOrdersByUser } from "../services/ordersApi";
 import Seo from "../components/Seo";
+import PageLoader from "../components/PageLoader";
 
 function OrderHistory() {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -36,12 +41,16 @@ function OrderHistory() {
       setError(false);
 
       try {
-        const response = await api.get(`/orders/${user.uid}`);
+        const userOrders = await fetchOrdersByUser(user.uid);
         if (!cancelled) {
-          setOrders(Array.isArray(response.data) ? response.data : []);
+          setOrders(userOrders);
         }
       } catch (fetchError) {
         console.error("Failed to load orders", fetchError);
+        if (axios.isAxiosError(fetchError) && fetchError.response?.status >= 500) {
+          navigate("/500", { state: { from: location.pathname } });
+          return;
+        }
         if (!cancelled) {
           setError(true);
         }
@@ -57,7 +66,7 @@ function OrderHistory() {
     return () => {
       cancelled = true;
     };
-  }, [user?.uid]);
+  }, [user?.uid, navigate, location.pathname]);
 
   return (
     <section className="space-y-10">
@@ -77,11 +86,7 @@ function OrderHistory() {
       </header>
 
       {loading ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
-            {t("orders.history.loading")}
-          </p>
-        </div>
+        <PageLoader labelKey="orders.history.loading" />
       ) : error ? (
         <div className="rounded-3xl border border-rose-400/40 bg-rose-400/10 p-8 text-center text-xs font-semibold uppercase tracking-[0.35em] text-rose-400 dark:border-rose-500/30 dark:bg-rose-500/10">
           {t("orders.history.error")}

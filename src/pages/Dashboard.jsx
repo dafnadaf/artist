@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import ChatBox from "../components/ChatBox";
 import { useAuth } from "../context/AuthContext";
-import api from "../services/api";
+import { fetchOrdersByUser } from "../services/ordersApi";
 import Seo from "../components/Seo";
 
 function Dashboard() {
@@ -39,9 +39,9 @@ function Dashboard() {
       setOrdersError(false);
 
       try {
-        const response = await api.get(`/orders/${user.uid}`);
+        const userOrders = await fetchOrdersByUser(user.uid);
         if (!cancelled) {
-          setOrders(Array.isArray(response.data) ? response.data : []);
+          setOrders(userOrders);
         }
       } catch (error) {
         console.error("Failed to load dashboard orders", error);
