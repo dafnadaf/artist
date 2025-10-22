@@ -9,6 +9,7 @@ import helmet from "helmet";
 import ordersRouter from "./routes/orders.js";
 import usersRouter from "./routes/users.js";
 import worksRouter from "./routes/works.js";
+import errorHandler from "./middleware/errorHandler.js";
 
 mongoose.set("strictQuery", true);
 
@@ -66,12 +67,7 @@ app.use((request, response) => {
   response.status(404).json({ message: "Not found" });
 });
 
-app.use((error, request, response, _next) => {
-  void _next;
-  console.error(error);
-  const status = error.status || 500;
-  response.status(status).json({ message: error.message || "Internal server error" });
-});
+app.use(errorHandler);
 
 const port = Number(process.env.PORT) || 4000;
 const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/artist";

@@ -13,6 +13,7 @@ import Seo from "../components/Seo";
 
 const SHIPPING_OPTIONS = [
   { value: "standard", price: 0 },
+  { value: "courier", price: 25 },
   { value: "express", price: 45 },
   { value: "international", price: 95 },
 ];
@@ -155,7 +156,6 @@ function CartPage() {
       delivery: {
         type: values.shipping,
         address,
-        cost: shippingCost,
       },
       customer: {
         name: name || profile?.name || "",
