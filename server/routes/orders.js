@@ -4,6 +4,13 @@ import { body, param } from "express-validator";
 import Order from "../models/Order.js";
 import { checkRole, requireSelfOrRole, verifyToken } from "../middleware/auth.js";
 import validateRequest from "../middleware/validateRequest.js";
+import { sendTelegramMessage } from "../utils/telegramNotifier.js";
+import {
+  DEFAULT_DELIVERY_TYPE,
+  getDeliveryPrice,
+  isSupportedDeliveryType,
+  normalizeDeliveryType,
+} from "../utils/deliveryPricing.js";
 
 const router = Router();
 
@@ -74,13 +81,22 @@ const createOrderValidations = [
       }
 
       return true;
-    }),
+    })
+    .withMessage("Delivery details are required"),
   body("delivery.address").isString().trim().notEmpty().withMessage("Delivery address is required"),
   body("delivery.type")
-    .optional()
-    .isIn(["standard", "express", "international", "pickup", "courier", "mail"])
-    .withMessage("Invalid delivery type"),
-  body("delivery.cost").optional().isFloat({ min: 0 }).withMessage("Delivery cost must be positive"),
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage("Delivery type is required")
+    .bail()
+    .custom((value) => {
+      if (!isSupportedDeliveryType(value)) {
+        throw new Error("Invalid delivery type");
+      }
+
+      return true;
+    }),
   body("customer")
     .optional()
     .custom((value) => {
@@ -126,10 +142,14 @@ router.post(
       const { userId, items, delivery, customer, status } = request.body || {};
 
       const normalizedItems = sanitizeItems(items);
+      const deliveryType = isSupportedDeliveryType(delivery?.type)
+        ? normalizeDeliveryType(delivery?.type)
+        : DEFAULT_DELIVERY_TYPE;
+      const deliveryCost = getDeliveryPrice(deliveryType);
       const sanitizedDelivery = {
-        type: delivery?.type || "standard",
+        type: deliveryType,
         address: delivery?.address?.trim?.() ?? "",
-        cost: Number.isFinite(Number(delivery?.cost)) ? Number(delivery.cost) : 0,
+        cost: deliveryCost,
       };
 
       const orderPayload = {
@@ -147,6 +167,24 @@ router.post(
       };
 
       const order = await Order.create(orderPayload);
+
+      const subtotal = normalizedItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0,
+      );
+      const orderTotal = subtotal + sanitizedDelivery.cost;
+      const customerName = orderPayload.customer?.name || "не указано";
+      const customerEmail = orderPayload.customer?.email || "не указано";
+      const messageLines = [
+        "🆕 Новый заказ",
+        `№ ${order.id}`,
+        `Клиент: ${customerName}${customerEmail ? ` (${customerEmail})` : ""}`,
+        `Позиций: ${order.items.length}`,
+        `Сумма: ${orderTotal.toFixed(2)} (доставка ${sanitizedDelivery.cost.toFixed(2)} ${sanitizedDelivery.type})`,
+      ];
+
+      sendTelegramMessage(messageLines.join("\n")).catch(() => {});
+
       return response.status(201).json(order);
     } catch (error) {
       return next(error);
