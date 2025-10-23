@@ -4,8 +4,12 @@ import { useTranslation } from "react-i18next";
 
 const statusStyles = {
   new: "border-sky-400/40 bg-sky-400/10 text-sky-300",
+  awaiting_payment: "border-violet-400/40 bg-violet-400/10 text-violet-300",
+  paid: "border-teal-400/40 bg-teal-400/10 text-teal-300",
   in_progress: "border-amber-400/40 bg-amber-400/10 text-amber-300",
   shipped: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
+  delivered: "border-lime-400/40 bg-lime-400/10 text-lime-300",
+  canceled: "border-rose-400/40 bg-rose-400/10 text-rose-300",
 };
 
 function OrderSummary({ order, currencyFormatter, customer }) {
@@ -18,7 +22,7 @@ function OrderSummary({ order, currencyFormatter, customer }) {
 
     return new Intl.NumberFormat(i18n.language === "ru" ? "ru-RU" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "RUB",
       maximumFractionDigits: 0,
     });
   }, [currencyFormatter, i18n.language]);
@@ -37,10 +41,37 @@ function OrderSummary({ order, currencyFormatter, customer }) {
   }
 
   const itemsTotal = order.items?.reduce((sum, item) => sum + item.price * item.quantity, 0) ?? 0;
-  const shippingCost = order.delivery?.cost ?? 0;
-  const grandTotal = itemsTotal + shippingCost;
+  const shipping = order.shipping || {};
+  const shippingCost = shipping.price ?? order.delivery?.cost ?? 0;
+  const grandTotal = order.total ?? itemsTotal + shippingCost;
   const status = order.status || "new";
   const statusClassName = statusStyles[status] || statusStyles.new;
+  const shippingStatus = shipping.status;
+  const shippingTypeLabel = shipping.type ? t(`cartPage.shippingTypes.${shipping.type}`, { defaultValue: shipping.type }) : null;
+  const paymentStatus = order.payment?.status;
+  const paymentStatusLabel = paymentStatus
+    ? t(`orders.paymentStatus.${paymentStatus}`, { defaultValue: paymentStatus })
+    : null;
+  const paymentDate = order.payment?.paidAt ? new Date(order.payment.paidAt) : null;
+  const paymentAmount = Number.isFinite(Number(order.payment?.amount)) ? Number(order.payment.amount) : null;
+  const paymentCurrency = order.payment?.currency || "RUB";
+
+  const formatEta = () => {
+    if (!shipping?.eta) {
+      return null;
+    }
+
+    const { daysMin, daysMax } = shipping.eta;
+    if (!daysMin && !daysMax) {
+      return null;
+    }
+
+    if (daysMin && daysMax && daysMin !== daysMax) {
+      return t("orders.summary.etaRange", { min: daysMin, max: daysMax });
+    }
+
+    return t("orders.summary.etaSingle", { days: daysMin || daysMax });
+  };
 
   return (
     <section className="space-y-6 rounded-3xl border border-slate-200/70 bg-white/80 p-8 shadow-2xl backdrop-blur-sm dark:border-slate-800/80 dark:bg-slate-950/80">
@@ -76,10 +107,27 @@ function OrderSummary({ order, currencyFormatter, customer }) {
               </span>
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.shippingLabel")}</span>
+              <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.shippingProvider")}</span>
               <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {t(`cartPage.shippingOptions.${order.delivery?.type || "standard"}`)}
+                {shipping.serviceName || t(`shipping.providers.${shipping.provider || "cdek"}`)}
               </span>
+              {shippingTypeLabel ? (
+                <span className="text-[0.6rem] font-medium uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                  {t("orders.summary.shippingType", { type: shippingTypeLabel })}
+                </span>
+              ) : null}
+              <span className="text-[0.6rem] font-medium uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                {formatEta() || t("orders.summary.etaUnknown")}
+              </span>
+              {shipping.pvz ? (
+                <div className="mt-1 space-y-1 text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                  <span className="font-semibold text-slate-400 dark:text-slate-300">
+                    {t("orders.summary.pickupPoint")}
+                  </span>
+                  <span className="text-slate-500 dark:text-slate-300">{shipping.pvz.name}</span>
+                  <span className="text-[0.55rem] text-slate-500 dark:text-slate-400">{shipping.pvz.address}</span>
+                </div>
+              ) : null}
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.customer")}</span>
@@ -93,9 +141,52 @@ function OrderSummary({ order, currencyFormatter, customer }) {
             <div className="flex flex-col gap-1">
               <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.address")}</span>
               <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {order.delivery?.address}
+                {shipping.recipient?.address?.address || shipping.recipient?.address || order.delivery?.address}
               </span>
+              {shipping.recipient?.address?.postal_code ? (
+                <span className="text-[0.6rem] font-medium uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                  {shipping.recipient.address.postal_code}
+                </span>
+              ) : null}
             </div>
+            {shipping.trackingNumber ? (
+              <div className="flex flex-col gap-1">
+                <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.tracking")}</span>
+                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{shipping.trackingNumber}</span>
+                {shipping.labelUrl ? (
+                  <a
+                    href={shipping.labelUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-teal-500 hover:text-teal-300"
+                  >
+                    {t("orders.summary.downloadLabel")}
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+            {shippingStatus ? (
+              <div className="flex flex-col gap-1">
+                <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.currentStatus")}</span>
+                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {shippingStatus.name || shippingStatus.description}
+                </span>
+                <span className="text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                  {shippingStatus.date ? dateFormatter.format(new Date(shippingStatus.date)) : ""}
+                </span>
+              </div>
+            ) : null}
+            {paymentStatusLabel ? (
+              <div className="flex flex-col gap-1">
+                <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.paymentStatusLabel")}</span>
+                <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{paymentStatusLabel}</span>
+                {paymentDate ? (
+                  <span className="text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                    {dateFormatter.format(paymentDate)}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -127,6 +218,16 @@ function OrderSummary({ order, currencyFormatter, customer }) {
               <span>{t("orders.summary.totals.shipping")}</span>
               <span className="font-semibold text-slate-900 dark:text-slate-100">{formatter.format(shippingCost)}</span>
             </div>
+            {paymentAmount !== null ? (
+              <div className="flex items-center justify-between">
+                <span>{t("orders.summary.totals.paid")}</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                  {paymentCurrency === "RUB"
+                    ? formatter.format(paymentAmount)
+                    : `${paymentAmount.toFixed(2)} ${paymentCurrency}`}
+                </span>
+              </div>
+            ) : null}
             <div className="flex items-center justify-between text-sm font-black tracking-[0.25em] text-teal-400">
               <span>{t("orders.summary.totals.grand")}</span>
               <span>{formatter.format(grandTotal)}</span>
@@ -143,14 +244,66 @@ OrderSummary.propTypes = {
     _id: PropTypes.string,
     status: PropTypes.string,
     createdAt: PropTypes.string,
-    delivery: PropTypes.shape({
+    shipping: PropTypes.shape({
+      provider: PropTypes.string,
       type: PropTypes.string,
-      address: PropTypes.string,
-      cost: PropTypes.number,
+      serviceName: PropTypes.string,
+      tariffCode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      price: PropTypes.number,
+      eta: PropTypes.shape({
+        daysMin: PropTypes.number,
+        daysMax: PropTypes.number,
+      }),
+      recipient: PropTypes.shape({
+        name: PropTypes.string,
+        phone: PropTypes.string,
+        email: PropTypes.string,
+        address: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.shape({
+            postal_code: PropTypes.string,
+            address: PropTypes.string,
+            city: PropTypes.string,
+            country_code: PropTypes.string,
+          }),
+        ]),
+      }),
+      trackingNumber: PropTypes.string,
+      labelUrl: PropTypes.string,
+      status: PropTypes.shape({
+        code: PropTypes.string,
+        name: PropTypes.string,
+        description: PropTypes.string,
+        date: PropTypes.string,
+      }),
+      pvz: PropTypes.shape({
+        code: PropTypes.string,
+        name: PropTypes.string,
+        address: PropTypes.string,
+        postalCode: PropTypes.string,
+        city: PropTypes.string,
+        schedule: PropTypes.string,
+        location: PropTypes.shape({
+          lat: PropTypes.number,
+          lon: PropTypes.number,
+        }),
+        features: PropTypes.shape({
+          cash: PropTypes.bool,
+          cashless: PropTypes.bool,
+          fitting: PropTypes.bool,
+        }),
+      }),
     }),
+    total: PropTypes.number,
     customer: PropTypes.shape({
       name: PropTypes.string,
       email: PropTypes.string,
+    }),
+    payment: PropTypes.shape({
+      status: PropTypes.string,
+      paidAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+      amount: PropTypes.number,
+      currency: PropTypes.string,
     }),
     items: PropTypes.arrayOf(
       PropTypes.shape({

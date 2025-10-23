@@ -7,6 +7,14 @@ const statusStyles = {
     badge: "bg-sky-400/10 text-sky-300 border-sky-400/40",
     dot: "bg-sky-300",
   },
+  awaiting_payment: {
+    badge: "bg-violet-400/10 text-violet-300 border-violet-400/40",
+    dot: "bg-violet-300",
+  },
+  paid: {
+    badge: "bg-teal-400/10 text-teal-300 border-teal-400/40",
+    dot: "bg-teal-300",
+  },
   in_progress: {
     badge: "bg-amber-400/10 text-amber-300 border-amber-400/40",
     dot: "bg-amber-300",
@@ -14,6 +22,14 @@ const statusStyles = {
   shipped: {
     badge: "bg-emerald-400/10 text-emerald-300 border-emerald-400/40",
     dot: "bg-emerald-300",
+  },
+  delivered: {
+    badge: "bg-lime-400/10 text-lime-300 border-lime-400/40",
+    dot: "bg-lime-300",
+  },
+  canceled: {
+    badge: "bg-rose-400/10 text-rose-300 border-rose-400/40",
+    dot: "bg-rose-300",
   },
 };
 
@@ -27,7 +43,7 @@ function OrderCard({ order, currencyFormatter }) {
 
     return new Intl.NumberFormat(i18n.language === "ru" ? "ru-RU" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "RUB",
       maximumFractionDigits: 0,
     });
   }, [currencyFormatter, i18n.language]);
@@ -42,10 +58,24 @@ function OrderCard({ order, currencyFormatter }) {
   );
 
   const itemsTotal = order.items?.reduce((sum, item) => sum + item.price * item.quantity, 0) ?? 0;
-  const shippingCost = order.delivery?.cost ?? 0;
-  const grandTotal = itemsTotal + shippingCost;
+  const shipping = order.shipping || {};
+  const shippingCost = shipping.price ?? order.delivery?.cost ?? 0;
+  const grandTotal = order.total ?? itemsTotal + shippingCost;
   const status = order.status || "new";
   const statusStyle = statusStyles[status] || statusStyles.new;
+  const etaText = shipping.eta
+    ? shipping.eta.daysMin && shipping.eta.daysMax && shipping.eta.daysMin !== shipping.eta.daysMax
+      ? t("orders.summary.etaRange", { min: shipping.eta.daysMin, max: shipping.eta.daysMax })
+      : t("orders.summary.etaSingle", { days: shipping.eta.daysMin || shipping.eta.daysMax })
+    : null;
+  const shippingTypeLabel = shipping.type ? t(`cartPage.shippingTypes.${shipping.type}`, { defaultValue: shipping.type }) : null;
+  const paymentStatus = order.payment?.status;
+  const paymentStatusLabel = paymentStatus
+    ? t(`orders.paymentStatus.${paymentStatus}`, { defaultValue: paymentStatus })
+    : null;
+  const paymentDate = order.payment?.paidAt ? new Date(order.payment.paidAt) : null;
+  const paymentAmount = Number.isFinite(Number(order.payment?.amount)) ? Number(order.payment.amount) : null;
+  const paymentCurrency = order.payment?.currency || "RUB";
 
   return (
     <article className="space-y-4 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-xl backdrop-blur-sm transition hover:shadow-2xl dark:border-slate-800/80 dark:bg-slate-950/80">
@@ -84,13 +114,48 @@ function OrderCard({ order, currencyFormatter }) {
         </ul>
         <div className="space-y-3 rounded-2xl border border-dashed border-slate-200/60 p-4 text-[0.68rem] uppercase tracking-[0.28em] text-slate-500 shadow-inner dark:border-slate-700/60 dark:text-slate-400">
           <div className="space-y-1">
-            <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.shippingLabel")}</span>
+            <span className="text-slate-400 dark:text-slate-500">{t("orders.summary.shippingProvider")}</span>
             <span className="block font-semibold text-slate-900 dark:text-slate-100">
-              {t(`cartPage.shippingOptions.${order.delivery?.type || "standard"}`)}
+              {shipping.serviceName || t(`shipping.providers.${shipping.provider || "cdek"}`)}
             </span>
-            <span className="block text-[0.65rem] text-slate-500 dark:text-slate-400">
-              {order.delivery?.address}
-            </span>
+            {shippingTypeLabel ? (
+              <span className="block text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                {t("orders.summary.shippingType", { type: shippingTypeLabel })}
+              </span>
+            ) : null}
+            {shipping.trackingNumber ? (
+              <span className="block text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                {shipping.trackingNumber}
+              </span>
+            ) : null}
+            {etaText ? (
+              <span className="block text-[0.65rem] text-slate-500 dark:text-slate-400">{etaText}</span>
+            ) : null}
+            {shipping.pvz ? (
+              <div className="mt-2 space-y-1 text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                <span className="font-semibold text-slate-400 dark:text-slate-300">
+                  {t("orders.summary.pickupPoint")}
+                </span>
+                <span className="text-slate-500 dark:text-slate-300">{shipping.pvz.name}</span>
+                <span className="text-[0.55rem] text-slate-500 dark:text-slate-400">{shipping.pvz.address}</span>
+              </div>
+            ) : null}
+            {paymentStatusLabel ? (
+              <div className="space-y-1 border-t border-dashed border-slate-200/60 pt-2 text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:border-slate-700/60 dark:text-slate-400">
+                <span className="font-semibold text-slate-400 dark:text-slate-300">
+                  {t("orders.summary.paymentStatusLabel")}
+                </span>
+                <span className="text-slate-500 dark:text-slate-300">{paymentStatusLabel}</span>
+                {paymentDate ? (
+                  <span className="text-[0.55rem] text-slate-500 dark:text-slate-400">
+                    {paymentDate.toLocaleString(i18n.language === "ru" ? "ru-RU" : "en-US", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
           {order.customer?.name || order.customer?.email ? (
             <div className="space-y-1">
@@ -108,6 +173,16 @@ function OrderCard({ order, currencyFormatter }) {
               <span>{t("orders.summary.totals.shipping")}</span>
               <span className="font-semibold text-slate-900 dark:text-slate-100">{formatter.format(shippingCost)}</span>
             </div>
+            {paymentAmount !== null ? (
+              <div className="flex items-center justify-between text-[0.65rem]">
+                <span>{t("orders.summary.totals.paid")}</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-100">
+                  {paymentCurrency === "RUB"
+                    ? formatter.format(paymentAmount)
+                    : `${paymentAmount.toFixed(2)} ${paymentCurrency}`}
+                </span>
+              </div>
+            ) : null}
             <div className="flex items-center justify-between text-sm font-black tracking-[0.25em] text-teal-400">
               <span>{t("orders.summary.totals.grand")}</span>
               <span>{formatter.format(grandTotal)}</span>
@@ -124,14 +199,34 @@ OrderCard.propTypes = {
     _id: PropTypes.string,
     status: PropTypes.string,
     createdAt: PropTypes.string,
-    delivery: PropTypes.shape({
+    shipping: PropTypes.shape({
+      provider: PropTypes.string,
+      serviceName: PropTypes.string,
+      price: PropTypes.number,
+      eta: PropTypes.shape({
+        daysMin: PropTypes.number,
+        daysMax: PropTypes.number,
+      }),
+      trackingNumber: PropTypes.string,
       type: PropTypes.string,
-      address: PropTypes.string,
-      cost: PropTypes.number,
+      pvz: PropTypes.shape({
+        code: PropTypes.string,
+        name: PropTypes.string,
+        address: PropTypes.string,
+        postalCode: PropTypes.string,
+        city: PropTypes.string,
+      }),
     }),
+    total: PropTypes.number,
     customer: PropTypes.shape({
       name: PropTypes.string,
       email: PropTypes.string,
+    }),
+    payment: PropTypes.shape({
+      status: PropTypes.string,
+      paidAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+      amount: PropTypes.number,
+      currency: PropTypes.string,
     }),
     items: PropTypes.arrayOf(
       PropTypes.shape({

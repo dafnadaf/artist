@@ -7,6 +7,14 @@ const statusVisuals = {
     badge: "bg-sky-400/10 text-sky-300 border-sky-400/40",
     dot: "bg-sky-300",
   },
+  awaiting_payment: {
+    badge: "bg-violet-400/10 text-violet-300 border-violet-400/40",
+    dot: "bg-violet-300",
+  },
+  paid: {
+    badge: "bg-teal-400/10 text-teal-300 border-teal-400/40",
+    dot: "bg-teal-300",
+  },
   in_progress: {
     badge: "bg-amber-400/10 text-amber-300 border-amber-400/40",
     dot: "bg-amber-300",
@@ -14,6 +22,14 @@ const statusVisuals = {
   shipped: {
     badge: "bg-emerald-400/10 text-emerald-300 border-emerald-400/40",
     dot: "bg-emerald-300",
+  },
+  delivered: {
+    badge: "bg-lime-400/10 text-lime-300 border-lime-400/40",
+    dot: "bg-lime-300",
+  },
+  canceled: {
+    badge: "bg-rose-400/10 text-rose-300 border-rose-400/40",
+    dot: "bg-rose-300",
   },
 };
 
@@ -27,7 +43,7 @@ function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
 
     return new Intl.NumberFormat(i18n.language === "ru" ? "ru-RU" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "RUB",
       maximumFractionDigits: 0,
     });
   }, [currencyFormatter, i18n.language]);
@@ -74,10 +90,23 @@ function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
         <tbody className="divide-y divide-slate-200/40 dark:divide-slate-800/40">
           {orders.map((order) => {
             const itemsTotal = order.items?.reduce((sum, item) => sum + item.price * item.quantity, 0) ?? 0;
-            const shippingCost = order.delivery?.cost ?? 0;
-            const grandTotal = itemsTotal + shippingCost;
+            const shipping = order.shipping || {};
+            const shippingCost = shipping.price ?? order.delivery?.cost ?? 0;
+            const grandTotal = order.total ?? itemsTotal + shippingCost;
             const status = order.status || "new";
             const statusStyle = statusVisuals[status] || statusVisuals.new;
+            const paymentStatus = order.payment?.status;
+            const paymentStatusLabel = paymentStatus
+              ? t(`orders.paymentStatus.${paymentStatus}`, { defaultValue: paymentStatus })
+              : null;
+            const etaText = shipping.eta
+              ? shipping.eta.daysMin && shipping.eta.daysMax && shipping.eta.daysMin !== shipping.eta.daysMax
+                ? t("orders.summary.etaRange", { min: shipping.eta.daysMin, max: shipping.eta.daysMax })
+                : t("orders.summary.etaSingle", { days: shipping.eta.daysMin || shipping.eta.daysMax })
+              : null;
+            const shippingTypeLabel = shipping.type
+              ? t(`cartPage.shippingTypes.${shipping.type}`, { defaultValue: shipping.type })
+              : null;
 
             return (
               <tr key={order._id} className="transition hover:bg-teal-400/5 dark:hover:bg-teal-400/10">
@@ -115,8 +144,31 @@ function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex flex-col gap-2 text-slate-600 dark:text-slate-300">
-                    <span>{t(`cartPage.shippingOptions.${order.delivery?.type || "standard"}`)}</span>
-                    <span className="text-[0.6rem] text-slate-400 dark:text-slate-500">{order.delivery?.address}</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {shipping.serviceName || t(`shipping.providers.${shipping.provider || "cdek"}`)}
+                    </span>
+                    {shippingTypeLabel ? (
+                      <span className="text-[0.6rem] uppercase tracking-[0.35em] text-slate-500 dark:text-slate-400">
+                        {t("orders.summary.shippingType", { type: shippingTypeLabel })}
+                      </span>
+                    ) : null}
+                    {shipping.trackingNumber ? (
+                      <span className="text-[0.6rem] uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">
+                        {shipping.trackingNumber}
+                      </span>
+                    ) : null}
+                    {etaText ? (
+                      <span className="text-[0.6rem] text-slate-400 dark:text-slate-500">{etaText}</span>
+                    ) : null}
+                    {shipping.pvz ? (
+                      <div className="space-y-1 text-[0.6rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                        <span className="font-semibold text-slate-400 dark:text-slate-300">
+                          {t("orders.summary.pickupPoint")}
+                        </span>
+                        <span className="text-slate-500 dark:text-slate-300">{shipping.pvz.name}</span>
+                        <span className="text-[0.55rem] text-slate-500 dark:text-slate-400">{shipping.pvz.address}</span>
+                      </div>
+                    ) : null}
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -126,6 +178,11 @@ function AdminOrderList({ orders, currencyFormatter, onRefresh }) {
                     <span className={`h-2.5 w-2.5 rounded-full ${statusStyle.dot}`} aria-hidden="true" />
                     {t(`orders.status.${status}`, { defaultValue: status })}
                   </span>
+                  {paymentStatusLabel ? (
+                    <span className="mt-2 block text-[0.55rem] uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">
+                      {t("orders.summary.paymentStatusShort", { status: paymentStatusLabel })}
+                    </span>
+                  ) : null}
                 </td>
                 <td className="px-6 py-4 text-right font-semibold text-slate-900 dark:text-slate-100">
                   {formatter.format(grandTotal)}
@@ -146,14 +203,35 @@ AdminOrderList.propTypes = {
       userId: PropTypes.string,
       status: PropTypes.string,
       createdAt: PropTypes.string,
-      delivery: PropTypes.shape({
+      shipping: PropTypes.shape({
+        provider: PropTypes.string,
+        serviceName: PropTypes.string,
+        tariffCode: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        price: PropTypes.number,
+        eta: PropTypes.shape({
+          daysMin: PropTypes.number,
+          daysMax: PropTypes.number,
+        }),
+        trackingNumber: PropTypes.string,
         type: PropTypes.string,
-        address: PropTypes.string,
-        cost: PropTypes.number,
+        pvz: PropTypes.shape({
+          code: PropTypes.string,
+          name: PropTypes.string,
+          address: PropTypes.string,
+          postalCode: PropTypes.string,
+          city: PropTypes.string,
+        }),
       }),
+      total: PropTypes.number,
       customer: PropTypes.shape({
         name: PropTypes.string,
         email: PropTypes.string,
+      }),
+      payment: PropTypes.shape({
+        status: PropTypes.string,
+        paidAt: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+        amount: PropTypes.number,
+        currency: PropTypes.string,
       }),
       items: PropTypes.arrayOf(
         PropTypes.shape({
