@@ -21,8 +21,18 @@ export const createOrder = async (payload) => {
   return response.data;
 };
 
+export const fetchOrderById = async (orderId) => {
+  if (!orderId) {
+    return null;
+  }
+
+  const response = await api.get(`/orders/detail/${orderId}`);
+  return response.data;
+};
+
 export default {
   fetchOrders,
   fetchOrdersByUser,
   createOrder,
+  fetchOrderById,
 };

@@ -12,6 +12,9 @@
   "language": "Language",
   "darkMode": "Dark Mode",
   "lightMode": "Light Mode",
+  "common": {
+    "skipToContent": "Skip to main content"
+  },
   "languageSwitcher": {
     "options": {
       "ru": "Russian",
@@ -92,9 +95,17 @@
     "checkoutHeading": "Pre-order details",
     "form": {
       "name": "Full name",
+      "phone": "Phone",
       "email": "Email",
-      "address": "Shipping address",
-      "shipping": "Delivery type"
+      "postalCode": "Postal code",
+      "city": "City",
+      "address": "Street address",
+      "shippingQuote": "Delivery quote",
+      "shippingHint": "Calculate rates based on your address.",
+      "calculate": "Calculate shipping",
+      "loadingQuote": "Calculating…",
+      "eta": "{{min}}–{{max}} days",
+      "etaSingle": "{{days}} days"
     },
     "errors": {
       "required": "This field is required",
@@ -103,7 +114,13 @@
       "submit": "We couldn't submit the order. Please try again.",
       "noItems": "Add at least one artwork before placing an order.",
       "addressRequired": "Enter a delivery address.",
-      "permission": "You do not have permission to place this order."
+      "permission": "You do not have permission to place this order.",
+      "shippingQuote": "We couldn't confirm the shipping option.",
+      "shippingRequired": "Select a delivery option before confirming.",
+      "pickupPoint": "Select a pickup point for the chosen service.",
+      "noQuotes": "No delivery options available for this address.",
+      "quoteFailed": "Shipping providers are unavailable right now.",
+      "paymentInit": "We couldn't initiate the payment session. Please try again."
     },
     "shippingOptions": {
       "standard": "Standard (domestic)",
@@ -116,7 +133,44 @@
     "summary": {
       "items": "Artworks",
       "shipping": "Shipping",
-      "total": "Total"
+      "total": "Total",
+      "tbd": "—"
+    },
+    "shippingTypes": {
+      "pickup": "Pickup point",
+      "courier": "Courier delivery"
+    },
+    "pickup": {
+      "title": "Pickup points",
+      "subtitle": "Choose a convenient pickup location",
+      "search": "Show points",
+      "select": "Select",
+      "choose": "Choose",
+      "change": "Change",
+      "prompt": "Pick a location to continue",
+      "selected": "Pickup point selected",
+      "summary": "Pickup point",
+      "empty": "No pickup points found for the specified area",
+      "error": "We couldn't load pickup points right now.",
+      "close": "Close",
+      "filterLabel": "Filters",
+      "filters": {
+        "cashless": "Card payment",
+        "fitting": "Fitting room",
+        "openToday": "Open today",
+        "reset": "Reset filters"
+      },
+      "results": "{{count}} pickup point",
+      "results_plural": "{{count}} pickup points",
+      "emptyFiltered": "No pickup points match the selected filters.",
+      "openToday": "Open today",
+      "features": {
+        "cash": "Cash",
+        "cashless": "Card",
+        "fitting": "Fitting"
+      },
+      "mapLabel": "Pickup points on map",
+      "listLabel": "Pickup points list"
     },
     "submit": "Place order",
     "loading": "Submitting…",
@@ -128,6 +182,24 @@
     "subtotal": "Subtotal",
     "remove": "Remove",
     "itemImageAlt": "Thumbnail of {{title}}"
+  },
+  "paymentSuccess": {
+    "tagline": "Payment complete",
+    "title": "Thank you for your payment",
+    "pendingTitle": "Awaiting payment confirmation",
+    "description": "Your payment has been confirmed. The studio will proceed with fulfilment shortly.",
+    "pendingDescription": "We haven't received confirmation yet. If you closed the payment window, please try again or contact the studio.",
+    "error": "We couldn't load the order.",
+    "notFound": "We couldn't find this order. Please contact the studio if the payment was completed.",
+    "viewOrders": "View my orders",
+    "loading": "Loading payment status…"
+  },
+  "shipping": {
+    "providers": {
+      "cdek": "CDEK",
+      "boxberry": "Boxberry",
+      "russianpost": "Russian Post"
+    }
   },
   "dashboardPage": {
     "tagline": "Collector console",
@@ -306,8 +378,18 @@
   "orders": {
     "status": {
       "new": "New",
+      "awaiting_payment": "Awaiting payment",
+      "paid": "Paid",
       "in_progress": "In progress",
-      "shipped": "Shipped"
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "canceled": "Canceled"
+    },
+    "paymentStatus": {
+      "awaiting": "Awaiting payment",
+      "succeeded": "Paid",
+      "canceled": "Payment canceled",
+      "refunded": "Refunded"
     },
     "summary": {
       "title": "Order confirmation",
@@ -317,15 +399,26 @@
       "pendingId": "Pending ID",
       "createdAt": "Created",
       "pendingDate": "Date pending",
-      "shippingLabel": "Delivery",
+      "shippingProvider": "Delivery service",
+      "shippingType": "Delivery type: {{type}}",
       "customer": "Customer",
       "address": "Address",
+      "tracking": "Tracking number",
+      "downloadLabel": "Download label",
+      "currentStatus": "Current status",
+      "paymentStatusLabel": "Payment status",
+      "etaRange": "ETA: {{min}}–{{max}} days",
+      "etaSingle": "ETA: {{days}} days",
+      "etaUnknown": "ETA pending",
+      "pickupPoint": "Pickup point",
       "itemsHeading": "Reserved works",
       "totals": {
         "items": "Artworks",
         "shipping": "Shipping",
+        "paid": "Paid",
         "grand": "Total"
-      }
+      },
+      "paymentStatusShort": "Payment: {{status}}"
     },
     "card": {
       "orderId": "Order #{{id}}"
@@ -425,6 +518,11 @@
       "title": "Cart — AvantArt",
       "description": "Review your selected artworks and confirm delivery details with AvantArt.",
       "keywords": "art cart, reserve artwork, avant-garde purchase"
+    },
+    "paymentSuccess": {
+      "title": "Payment confirmation — AvantArt",
+      "description": "Review your order summary and tracking details after completing payment.",
+      "keywords": "payment success, order confirmation, avant-garde purchase"
     },
     "dashboard": {
       "title": "Collector dashboard — AvantArt",

@@ -19,7 +19,7 @@ function AdminOrders() {
     () =>
       new Intl.NumberFormat(i18n.language === "ru" ? "ru-RU" : "en-US", {
         style: "currency",
-        currency: "USD",
+        currency: "RUB",
         maximumFractionDigits: 0,
       }),
     [i18n.language],

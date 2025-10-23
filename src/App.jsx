@@ -25,6 +25,7 @@ const Register = lazy(() => import("./pages/Register"));
 const ArView = lazy(() => import("./pages/ArView"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ServerError = lazy(() => import("./pages/ServerError"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 
 const THEME_STORAGE_KEY = "artist-theme";
 
@@ -47,7 +48,7 @@ function App() {
   const [theme, setTheme] = useState(getInitialTheme);
   const location = useLocation();
   const isArRoute = location.pathname.startsWith("/ar-view");
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -103,8 +104,11 @@ function App() {
             </Suspense>
           ) : (
             <div className="flex min-h-screen flex-col bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-900 transition-colors duration-500 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-slate-100">
+              <a href="#main-content" className="skip-link">
+                {t("common.skipToContent")}
+              </a>
               <Navbar />
-              <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
+              <main id="main-content" className="mx-auto w-full max-w-6xl flex-1 px-6 py-12" tabIndex={-1}>
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -158,6 +162,7 @@ function App() {
                         }
                     />
                     <Route path="/cart" element={<CartPage />} />
+                    <Route path="/payment/success" element={<PaymentSuccess />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/500" element={<ServerError />} />

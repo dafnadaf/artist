@@ -4,6 +4,7 @@ import { body, param } from "express-validator";
 import Work from "../models/Work.js";
 import { checkRole, verifyToken } from "../middleware/auth.js";
 import validateRequest from "../middleware/validateRequest.js";
+import { recordAuditLog } from "../utils/auditLogger.js";
 
 const router = express.Router();
 
@@ -112,6 +113,16 @@ router.post(
     try {
     const data = sanitizeWorkPayload(request.body ?? {});
     const created = await Work.create(data);
+
+    await recordAuditLog({
+      actor: request.user,
+      action: "work_created",
+      entity: "work",
+      entityId: created._id.toString(),
+      metadata: { price: data.price },
+      requestId: request.id,
+    });
+
     response.status(201).json(created.toObject());
   } catch (error) {
     next(error);
@@ -129,6 +140,13 @@ router.put(
     try {
     const data = sanitizeWorkPayload(request.body ?? {});
 
+    const existing = await Work.findById(request.params.id).lean();
+
+    if (!existing) {
+      response.status(404).json({ message: "Work not found" });
+      return;
+    }
+
     const updated = await Work.findByIdAndUpdate(request.params.id, data, {
       new: true,
       runValidators: true,
@@ -137,6 +155,20 @@ router.put(
     if (!updated) {
       response.status(404).json({ message: "Work not found" });
       return;
+    }
+
+    if (existing.price !== data.price) {
+      await recordAuditLog({
+        actor: request.user,
+        action: "work_price_updated",
+        entity: "work",
+        entityId: updated._id.toString(),
+        metadata: {
+          previousPrice: existing.price,
+          nextPrice: data.price,
+        },
+        requestId: request.id,
+      });
     }
 
     response.json(updated);
@@ -160,6 +192,15 @@ router.delete(
       response.status(404).json({ message: "Work not found" });
       return;
     }
+
+    await recordAuditLog({
+      actor: request.user,
+      action: "work_deleted",
+      entity: "work",
+      entityId: deleted._id.toString(),
+      metadata: { price: deleted.price },
+      requestId: request.id,
+    });
 
     response.status(204).send();
   } catch (error) {

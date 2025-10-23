@@ -19,7 +19,7 @@ function Dashboard() {
     () =>
       new Intl.NumberFormat(locale, {
         style: "currency",
-        currency: "USD",
+        currency: "RUB",
         maximumFractionDigits: 0,
       }),
     [locale],
@@ -70,8 +70,12 @@ function Dashboard() {
 
   const statusBadgeClasses = {
     new: "border-sky-400/40 bg-sky-400/10 text-sky-300",
+    awaiting_payment: "border-violet-400/40 bg-violet-400/10 text-violet-300",
+    paid: "border-teal-400/40 bg-teal-400/10 text-teal-300",
     in_progress: "border-amber-400/40 bg-amber-400/10 text-amber-300",
     shipped: "border-emerald-400/40 bg-emerald-400/10 text-emerald-300",
+    delivered: "border-lime-400/40 bg-lime-400/10 text-lime-300",
+    canceled: "border-rose-400/40 bg-rose-400/10 text-rose-300",
   };
 
   return (
@@ -135,9 +139,13 @@ function Dashboard() {
             <ul className="space-y-4">
               {visibleOrders.map((order) => {
                 const itemsTotal = order.items?.reduce((sum, item) => sum + item.price * item.quantity, 0) ?? 0;
-                const shippingCost = order.delivery?.cost ?? 0;
-                const totalCost = itemsTotal + shippingCost;
+                const shippingCost = order.shipping?.price ?? order.delivery?.cost ?? 0;
+                const totalCost = order.total ?? itemsTotal + shippingCost;
                 const status = order.status || "new";
+                const paymentStatus = order.payment?.status;
+                const paymentStatusLabel = paymentStatus
+                  ? t(`orders.paymentStatus.${paymentStatus}`, { defaultValue: paymentStatus })
+                  : null;
 
                 return (
                   <li
@@ -150,6 +158,11 @@ function Dashboard() {
                         {t(`orders.status.${status}`, { defaultValue: status })}
                       </span>
                     </div>
+                    {paymentStatusLabel ? (
+                      <span className="mt-2 block text-[0.55rem] uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">
+                        {t("orders.summary.paymentStatusShort", { status: paymentStatusLabel })}
+                      </span>
+                    ) : null}
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[0.65rem] uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
                       <span>
                         {order.createdAt
